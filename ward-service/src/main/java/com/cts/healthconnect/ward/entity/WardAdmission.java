@@ -27,7 +27,7 @@ public class WardAdmission {
     @Column(name = "admission_code", nullable = false)
     private String admissionCode;
 
-    private Long patientId;
+    private String patientCode;
     private String doctorCode;
 
     @Enumerated(EnumType.STRING)

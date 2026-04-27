@@ -10,7 +10,7 @@ import lombok.Data;
 public class WardAdmissionResponseDto {
 
     private String admissionCode;
-    private Long patientId;
+    private String patientCode;
     private String doctorCode;
     private String wardType;
     private String bedNumber;

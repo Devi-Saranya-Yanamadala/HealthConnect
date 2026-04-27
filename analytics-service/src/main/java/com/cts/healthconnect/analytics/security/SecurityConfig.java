@@ -13,9 +13,9 @@ public class SecurityConfig {
 
 	    http.csrf(csrf -> csrf.disable())
 	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers("/swagger-ui/**","/v3/api-docs/**").permitAll()
+	            .requestMatchers("/swagger-ui.html", "/swagger-ui/**","/v3/api-docs/**").permitAll()
 	            .requestMatchers("/api/analytics/**")
-	            .hasAnyRole("ADMIN","COMPLIANCE_OFFICER")
+	            .hasAnyRole("ADMIN", "MANAGER", "COMPLIANCE_OFFICER")
 	            .anyRequest().authenticated()
 	        )
 	        .addFilterBefore(new JwtAuthenticationFilter(),

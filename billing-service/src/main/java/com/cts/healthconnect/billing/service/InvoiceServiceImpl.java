@@ -56,6 +56,13 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         invoice.setStatus(InvoiceStatus.PAID);
     }
+    
+
+    @Override
+    public Double getTotalRevenue() {
+        return repository.getTotalRevenue();
+    }
+
 
     private InvoiceResponseDto map(Invoice invoice) {
         return InvoiceResponseDto.builder()

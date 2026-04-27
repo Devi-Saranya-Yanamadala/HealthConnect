@@ -36,4 +36,14 @@ public class WardController {
     public List<String> availableBeds(@RequestParam WardType wardType) {
         return bedService.getAvailableBeds(wardType);
     }
+    
+    @GetMapping("/admissions/count")
+    public Long getTotalAdmissions() {
+        return wardService.getTotalAdmissions();
+    }
+
+    @GetMapping("/admissions/active")
+    public Long getActiveAdmissions() {
+        return wardService.getActiveAdmissions();
+    }
 }

@@ -13,5 +13,7 @@ public interface AppointmentService {
     AppointmentResponseDto rescheduleAppointment(AppointmentRescheduleRequestDto dto);
 
     void completeAppointment(String appointmentCode);
+    
+    Long getTotalAppointments();
 }
 

@@ -33,4 +33,9 @@ public class PatientController {
     public PatientResponseDto markDeceased(@PathVariable String patientCode) {
         return service.markPatientDeceased(patientCode);
     }
+    
+    @GetMapping("/api/patients/count")
+    public Long getTotalPatients() {
+    	return service.getTotalPatients();
+    }
 }

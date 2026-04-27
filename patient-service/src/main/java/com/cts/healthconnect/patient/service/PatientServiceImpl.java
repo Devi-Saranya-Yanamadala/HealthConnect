@@ -69,6 +69,13 @@ public class PatientServiceImpl implements PatientService {
 
         return map(patient);
     }
+    
+
+    @Override
+    public Long getTotalPatients() {
+        return repository.count();
+    }
+
 
     private PatientResponseDto map(Patient p) {
         return PatientResponseDto.builder()

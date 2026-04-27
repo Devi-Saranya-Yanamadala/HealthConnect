@@ -1,6 +1,7 @@
 package com.cts.healthconnect.analytics.service;
 
 import com.cts.healthconnect.analytics.dto.AnalyticsResponseDto;
+import com.cts.healthconnect.analytics.dto.KpiResponseDto;
 import com.cts.healthconnect.analytics.entity.HospitalMetrics;
 import com.cts.healthconnect.analytics.repository.HospitalMetricsRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,5 +32,25 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .activeAdmissions(latest.getActiveAdmissions())
                 .totalRevenue(latest.getTotalRevenue())
                 .build();
+    }
+    
+    
+    @Override
+    public KpiResponseDto getKpis() {
+
+        HospitalMetrics latest = repository
+            .findAll(PageRequest.of(0, 1, Sort.by("updatedAt").descending()))
+            .getContent()
+            .stream()
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("No KPI data found"));
+
+        return KpiResponseDto.builder()
+            .totalPatients(latest.getTotalPatients())
+            .totalAppointments(latest.getTotalAppointments())
+            .totalAdmissions(latest.getTotalAdmissions())
+            .activeAdmissions(latest.getActiveAdmissions())
+            .totalRevenue(latest.getTotalRevenue())
+            .build();
     }
 }

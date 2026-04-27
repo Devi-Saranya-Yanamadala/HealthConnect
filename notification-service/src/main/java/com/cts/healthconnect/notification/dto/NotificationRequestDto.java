@@ -1,15 +1,24 @@
 package com.cts.healthconnect.notification.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class NotificationRequestDto {
+    @NotNull(message = "Recipient ID is required")
     private Long recipientId;
-    private String recipientType; // DOCTOR or PATIENT
+    
+    @NotBlank(message = "Recipient type (PATIENT/DOCTOR) is required")
+    private String recipientType;
+
+    // The message is now optional in the request because 
+    // the service can generate it dynamically based on the type.
     private String message;
-    private String notificationType; // APPOINTMENT, BILLING, etc.
+
+    @NotBlank(message = "Notification type is required")
+    private String notificationType; // APPOINTMENT, INVOICE, BILLING, ADMISSION
+    
+    private String recipientEmail;
+    private String recipientPhone;
 }

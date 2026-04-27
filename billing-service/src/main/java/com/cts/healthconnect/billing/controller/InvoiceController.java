@@ -36,4 +36,11 @@ public class InvoiceController {
     public void pay(@PathVariable String invoiceNumber) {
         service.markInvoicePaid(invoiceNumber);
     }
+    
+
+	@GetMapping("/revenue/total")
+	public Double getTotalRevenue() {
+		return service.getTotalRevenue();
+	}
+
 }

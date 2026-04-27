@@ -10,5 +10,7 @@ public interface InvoiceService {
     InvoiceResponseDto getInvoice(String invoiceNumber);
 
     void markInvoicePaid(String invoiceNumber);
+    
+    Double getTotalRevenue();
 }
 

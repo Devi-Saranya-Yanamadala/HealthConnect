@@ -34,4 +34,9 @@ public class AppointmentController {
     public void complete(@PathVariable String appointmentCode) {
         service.completeAppointment(appointmentCode);
     }
+    
+    @GetMapping("/api/appointments/count")
+    public Long getTotalAppointments() {
+    	return service.getTotalAppointments();
+    }
 }

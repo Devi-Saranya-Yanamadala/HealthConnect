@@ -34,7 +34,7 @@ public class WardServiceImpl implements WardService {
 
         WardAdmission admission = WardAdmission.builder()
                 .admissionCode(UUID.randomUUID().toString())
-                .patientId(dto.getPatientId())
+                .patientCode(dto.getPatientCode())
                 .doctorCode(dto.getDoctorCode())
                 .wardType(dto.getWardType())
                 .bedNumber(dto.getBedNumber())
@@ -68,11 +68,23 @@ public class WardServiceImpl implements WardService {
 
         bed.setOccupied(false);
     }
+    
+
+    @Override
+    public Long getTotalAdmissions() {
+        return admissionRepository.count();
+    }
+
+    @Override
+    public Long getActiveAdmissions() {
+        return admissionRepository.countByStatus(AdmissionStatus.ADMITTED);
+    }
+
 
     private WardAdmissionResponseDto map(WardAdmission a) {
         return WardAdmissionResponseDto.builder()
                 .admissionCode(a.getAdmissionCode())
-                .patientId(a.getPatientId())
+                .patientCode(a.getPatientCode())
                 .doctorCode(a.getDoctorCode())
                 .wardType(a.getWardType().name())
                 .bedNumber(a.getBedNumber())

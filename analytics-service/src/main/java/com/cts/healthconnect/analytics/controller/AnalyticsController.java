@@ -1,6 +1,7 @@
 package com.cts.healthconnect.analytics.controller;
 
 import com.cts.healthconnect.analytics.dto.AnalyticsResponseDto;
+import com.cts.healthconnect.analytics.dto.KpiResponseDto;
 import com.cts.healthconnect.analytics.service.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,5 +16,10 @@ public class AnalyticsController {
     @GetMapping("/dashboard")
     public AnalyticsResponseDto dashboard() {
         return service.getDashboardMetrics();
+    }
+
+    @GetMapping("/kpis")
+    public KpiResponseDto getKpis() {
+        return service.getKpis();
     }
 }

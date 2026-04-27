@@ -12,4 +12,8 @@ public interface WardService {
     WardAdmissionResponseDto getAdmission(String admissionCode);
 
     void dischargePatient(String admissionCode);
+    
+    Long getTotalAdmissions();
+    
+    Long getActiveAdmissions();
 }

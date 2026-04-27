@@ -106,6 +106,14 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         appointment.setStatus(AppointmentStatus.COMPLETED);
     }
+    
+    
+
+    @Override
+    public Long getTotalAppointments() {
+        return repository.count();
+    }
+
 
     private AppointmentResponseDto mapToResponse(Appointment appointment) {
         return AppointmentResponseDto.builder()
@@ -116,4 +124,5 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .status(appointment.getStatus().name())
                 .build();
     }
+    
 }

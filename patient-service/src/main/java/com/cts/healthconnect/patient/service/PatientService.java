@@ -13,4 +13,6 @@ public interface PatientService {
     void deactivatePatient(String patientCode);
 
     PatientResponseDto markPatientDeceased(String patientCode);
+    
+    Long getTotalPatients();
 }

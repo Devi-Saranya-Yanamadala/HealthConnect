@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class WardAdmissionRequestDto {
 
-    private Long patientId;
+    private String patientCode;
     private String doctorCode;
     private WardType wardType;
     private String bedNumber;

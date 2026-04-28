@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
     Optional<Appointment> findByAppointmentCode(String appointmentCode);
-
+    Optional<Appointment> findById(Long id);
 boolean existsByPatientIdAndDoctorCodeAndAppointmentDate(
         Long patientId,
         String doctorCode,

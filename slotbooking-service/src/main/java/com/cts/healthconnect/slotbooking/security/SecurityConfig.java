@@ -1,6 +1,7 @@
 package com.cts.healthconnect.slotbooking.security;
 
 import org.springframework.context.annotation.*;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -15,8 +16,9 @@ public class SecurityConfig {
 	        .authorizeHttpRequests(auth -> auth
 	            .requestMatchers("/swagger-ui/**","/v3/api-docs/**").permitAll()
 
-.requestMatchers("/api/slots/**")
-.hasAnyRole("ADMIN","RECEPTION")
+	            .requestMatchers("/api/slots/**")
+	            .hasAnyRole("ADMIN", "RECEPTION", "DOCTOR")
+
 
 
 

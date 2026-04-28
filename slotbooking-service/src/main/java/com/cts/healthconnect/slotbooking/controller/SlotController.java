@@ -3,14 +3,8 @@ package com.cts.healthconnect.slotbooking.controller;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.cts.healthconnect.slotbooking.dto.SlotCreateRequestDto;
 import com.cts.healthconnect.slotbooking.dto.SlotResponseDto;
@@ -25,11 +19,14 @@ public class SlotController {
 
     private final SlotService service;
 
+    // ✅ Create slots (ADMIN)
     @PostMapping("/generate")
-    public void generateSlots(@RequestBody SlotCreateRequestDto dto) {
+    public ResponseEntity<Void> generateSlots(@RequestBody SlotCreateRequestDto dto) {
         service.createSlots(dto);
+        return ResponseEntity.ok().build();
     }
 
+    // ✅ View slots
     @GetMapping
     public List<SlotResponseDto> getSlots(
             @RequestParam String doctorCode,
@@ -37,13 +34,17 @@ public class SlotController {
         return service.getSlots(doctorCode, date);
     }
 
+    // ✅ Book slot
     @PutMapping("/book/{slotId}")
-    public void bookSlot(@PathVariable Long slotId) {
+    public ResponseEntity<Void> bookSlot(@PathVariable Long slotId) {
         service.bookSlot(slotId);
+        return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/release/{slotId}")
-    public void releaseSlot(@PathVariable Long slotId) {
+    
+    @PatchMapping("/{slotId}/release")
+    public ResponseEntity<Void> releaseSlot(@PathVariable Long slotId) {
         service.releaseSlot(slotId);
+        return ResponseEntity.noContent().build();
     }
 }

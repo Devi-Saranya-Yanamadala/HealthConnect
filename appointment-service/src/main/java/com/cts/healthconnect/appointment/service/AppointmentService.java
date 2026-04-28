@@ -8,12 +8,14 @@ public interface AppointmentService {
 
     AppointmentResponseDto bookAppointment(AppointmentRequestDto dto);
 
-    void cancelAppointment(String appointmentCode);
+    AppointmentResponseDto cancelAppointmentById(Long appointmentId);
 
     AppointmentResponseDto rescheduleAppointment(AppointmentRescheduleRequestDto dto);
 
-    void completeAppointment(String appointmentCode);
-    
+
     Long getTotalAppointments();
+
+	AppointmentResponseDto completeAppointmentById(Long appointmentId);
 }
+
 

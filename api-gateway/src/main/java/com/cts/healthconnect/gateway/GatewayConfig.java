@@ -42,6 +42,9 @@ public class GatewayConfig {
 
             .route("analytics", r -> r.path("/api/analytics/**")
                 .uri("http://localhost:5008"))
+            
+            .route("analytics", r -> r.path("/api/Audit-Compliance/**")
+                    .uri("http://localhost:5010"))
 
             .build();
     }

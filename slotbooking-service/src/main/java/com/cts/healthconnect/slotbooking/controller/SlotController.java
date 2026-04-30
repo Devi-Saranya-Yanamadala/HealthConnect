@@ -10,6 +10,7 @@ import com.cts.healthconnect.slotbooking.dto.SlotCreateRequestDto;
 import com.cts.healthconnect.slotbooking.dto.SlotResponseDto;
 import com.cts.healthconnect.slotbooking.service.SlotService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -19,14 +20,14 @@ public class SlotController {
 
     private final SlotService service;
 
-    // ✅ Create slots (ADMIN)
+    // Create slots (ADMIN)
     @PostMapping("/generate")
-    public ResponseEntity<Void> generateSlots(@RequestBody SlotCreateRequestDto dto) {
+    public ResponseEntity<Void> generateSlots(@Valid @RequestBody SlotCreateRequestDto dto) {
         service.createSlots(dto);
         return ResponseEntity.ok().build();
     }
 
-    // ✅ View slots
+    // View slots
     @GetMapping
     public List<SlotResponseDto> getSlots(
             @RequestParam String doctorCode,
@@ -34,14 +35,14 @@ public class SlotController {
         return service.getSlots(doctorCode, date);
     }
 
-    // ✅ Book slot
+    // Book slot
     @PutMapping("/book/{slotId}")
     public ResponseEntity<Void> bookSlot(@PathVariable Long slotId) {
         service.bookSlot(slotId);
         return ResponseEntity.noContent().build();
     }
 
-    
+    // release slot
     @PatchMapping("/{slotId}/release")
     public ResponseEntity<Void> releaseSlot(@PathVariable Long slotId) {
         service.releaseSlot(slotId);

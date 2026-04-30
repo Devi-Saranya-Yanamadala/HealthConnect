@@ -9,5 +9,11 @@ public interface AuthService {
     void register(RegisterRequestDto dto);
 
     AuthResponseDto login(LoginRequestDto dto);
+
+	AuthResponseDto refreshAccessToken(RefreshTokenRequestDto dto);
+
+	void logout(RefreshTokenRequestDto dto);
+
+	
 }
 

@@ -2,6 +2,9 @@ package com.cts.healthconnect.doctor.dto;
 
 import java.time.LocalTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -40,10 +43,12 @@ public class DoctorRequestDto {
     @NotBlank(message = "Email must not be blank")
     @Email(message = "Email must be a valid email address")
     private String email;
-
-    @NotNull(message = "Working start time must be provided")
+  
+    @Schema(description = "Doctor working start time")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
     private LocalTime workingStartTime;
 
-    @NotNull(message = "Working end time must be provided")
+    @Schema(description = "Doctor working end time")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
     private LocalTime workingEndTime;
 }

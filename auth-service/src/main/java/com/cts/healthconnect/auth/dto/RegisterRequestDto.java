@@ -5,18 +5,33 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class RegisterRequestDto {
 
-    @NotBlank(message = "Username must not be blank")
-    @Size(min = 4, max = 50, message = "Username must be between 4 and 50 characters")
+    @NotBlank(message = "Username is required")
     private String username;
 
-    @NotBlank(message = "Password must not be blank")
-    @Size(min = 8, message = "Password must be at least 8 characters")
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must have at least 8 characters")
     private String password;
 
-    @NotNull(message = "Role must be provided")
+    @NotNull(message = "Role is required")
     private Role role;
+
+    // ✅ EMAIL VALIDATION
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
+    private String email;
+
+    // ✅ PHONE NUMBER VALIDATION
+    @NotBlank(message = "Phone number is required")
+    @Pattern(
+        regexp = "^[6-9][0-9]{9}$",
+        message = "Invalid phone number"
+    )
+    private String phoneNumber;
 }

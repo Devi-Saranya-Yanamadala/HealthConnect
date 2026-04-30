@@ -14,6 +14,7 @@ import com.cts.healthconnect.doctor.dto.DoctorRequestDto;
 import com.cts.healthconnect.doctor.dto.DoctorResponseDto;
 import com.cts.healthconnect.doctor.service.DoctorService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -25,7 +26,7 @@ public class DoctorController {
     private final DoctorService service;
 
     @PostMapping
-    public DoctorResponseDto create(@RequestBody DoctorRequestDto dto) {
+    public DoctorResponseDto create(@Valid @RequestBody DoctorRequestDto dto) {
         return service.createDoctor(dto);
     }
 

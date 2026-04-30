@@ -4,6 +4,8 @@ package com.cts.healthconnect.patient.controller;
 
 import com.cts.healthconnect.patient.dto.*;
 import com.cts.healthconnect.patient.service.PatientService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +17,7 @@ public class PatientController {
     private final PatientService service;
 
     @PostMapping
-    public PatientResponseDto register(@RequestBody PatientRequestDto dto) {
+    public PatientResponseDto register(@Valid @RequestBody PatientRequestDto dto) {
         return service.registerPatient(dto);
     }
 

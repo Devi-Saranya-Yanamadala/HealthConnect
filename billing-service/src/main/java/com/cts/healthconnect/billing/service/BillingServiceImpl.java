@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Service
@@ -16,7 +17,6 @@ public class BillingServiceImpl implements BillingService {
 
     private final InvoiceRepository repository;
 
-    // ✅ CREATE INVOICE (fixes nulls)
     @Override
     public InvoiceResponseDto createInvoice(
             String appointmentCode,
@@ -24,13 +24,21 @@ public class BillingServiceImpl implements BillingService {
             String doctorCode,
             Double totalAmount) {
 
+        // 1. VALIDATION: Check for null or non-positive amounts
+        if (totalAmount == null || totalAmount <= 0) {
+            throw new IllegalArgumentException("Total amount must be greater than zero.");
+        }
+
+        // 2. CONVERSION: Convert Double to BigDecimal for the Entity
+        BigDecimal amount = BigDecimal.valueOf(totalAmount);
+
         Invoice invoice = Invoice.builder()
-                .invoiceNumber(UUID.randomUUID().toString())
+                .invoiceNumber("INV-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
                 .appointmentCode(appointmentCode)
                 .patientId(patientId)
                 .doctorCode(doctorCode)
-                .totalAmount(totalAmount)
-                .paidAmount(0.0)
+                .totalAmount(amount)
+                .paidAmount(BigDecimal.ZERO) // Use BigDecimal.ZERO for initialization
                 .paymentMode("CASH")
                 .status(InvoiceStatus.GENERATED)
                 .build();
@@ -39,15 +47,24 @@ public class BillingServiceImpl implements BillingService {
         return mapToResponse(saved);
     }
 
-    // ✅ PATCH PAYMENT STATUS
     @Override
     public InvoiceResponseDto updatePaymentStatus(
             Long invoiceId,
             InvoiceStatusUpdateRequestDto dto) {
 
         Invoice invoice = repository.findById(invoiceId)
-                .orElseThrow(() ->
-                        new RuntimeException("Invoice not found: " + invoiceId));
+                .orElseThrow(() -> new RuntimeException("Invoice not found: " + invoiceId));
+
+        // 3. VALIDATION: Business State Machine check
+        // Prevent changing status if the invoice is already PAID or CANCELLED
+        if (invoice.getStatus() == InvoiceStatus.PAID) {
+            throw new IllegalStateException("Cannot update status: Invoice is already PAID.");
+        }
+
+        // Logic: If updating to PAID, ensure paidAmount is set to totalAmount
+        if (dto.getStatus() == InvoiceStatus.PAID) {
+            invoice.setPaidAmount(invoice.getTotalAmount());
+        }
 
         invoice.setStatus(dto.getStatus());
         repository.save(invoice);
@@ -59,8 +76,9 @@ public class BillingServiceImpl implements BillingService {
         return InvoiceResponseDto.builder()
                 .invoiceNumber(invoice.getInvoiceNumber())
                 .appointmentCode(invoice.getAppointmentCode())
-                .totalAmount(invoice.getTotalAmount())
-                .paidAmount(invoice.getPaidAmount())
+                // Convert BigDecimal back to Double for the DTO
+                .totalAmount(invoice.getTotalAmount().doubleValue())
+                .paidAmount(invoice.getPaidAmount().doubleValue())
                 .status(invoice.getStatus().name())
                 .build();
     }

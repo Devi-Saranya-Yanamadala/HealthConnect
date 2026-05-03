@@ -24,12 +24,12 @@ public class RegisterRequestDto {
     @NotNull(message = "Role is required")
     private Role role;
 
-    // ✅ EMAIL VALIDATION
+    // EMAIL VALIDATION
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
 
-    // ✅ PHONE NUMBER VALIDATION
+    // PHONE NUMBER VALIDATION
     @NotBlank(message = "Phone number is required")
     @Pattern(
         regexp = "^[6-9][0-9]{9}$",

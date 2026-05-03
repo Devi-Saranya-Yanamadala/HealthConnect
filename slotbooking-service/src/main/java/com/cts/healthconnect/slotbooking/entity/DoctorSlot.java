@@ -34,12 +34,16 @@ public class DoctorSlot {
 
     @Column(name = "slot_date", nullable = false)
     private LocalDate slotDate;
-
+    
+    @Column(nullable = false)
     private LocalTime startTime;
+    
+    @Column(nullable = false)
     private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
-    private SlotStatus status;
+    @Column(nullable = false)
+    private SlotStatus status=SlotStatus.AVAILABLE; // Default value
 
     @CreationTimestamp
     private LocalDateTime createdAt;

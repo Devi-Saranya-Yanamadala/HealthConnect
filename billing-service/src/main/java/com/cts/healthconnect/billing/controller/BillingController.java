@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class BillingController {
 
     private final BillingService service;
-
+    
     @PatchMapping("/{invoiceId}/payment-status")
     public ResponseEntity<InvoiceResponseDto> updatePaymentStatus(
             @PathVariable Long invoiceId,

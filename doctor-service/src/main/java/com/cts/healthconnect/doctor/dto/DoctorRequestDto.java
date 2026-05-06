@@ -45,10 +45,10 @@ public class DoctorRequestDto {
     private String email;
   
     @Schema(description = "Doctor working start time")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime workingStartTime;
 
     @Schema(description = "Doctor working end time")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime workingEndTime;
 }

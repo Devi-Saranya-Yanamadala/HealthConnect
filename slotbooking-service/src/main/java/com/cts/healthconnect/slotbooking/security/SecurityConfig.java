@@ -14,15 +14,38 @@ public class SecurityConfig {
 
 	    http.csrf(csrf -> csrf.disable())
 	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers("/swagger-ui.html", "/swagger-ui/**","/v3/api-docs/**").permitAll()
 
-	            .requestMatchers("/api/slots/**")
+	            // Swagger
+	            .requestMatchers(
+	                "/swagger-ui.html",
+	                "/swagger-ui/**",
+	                "/v3/api-docs/**"
+	            ).permitAll()
+
+	            // Generate slots → ADMIN only
+	            .requestMatchers(HttpMethod.POST, "/api/slots/generate")
+	            .hasRole("ADMIN")
+
+	            // View slots → ADMIN, RECEPTION, DOCTOR
+	            .requestMatchers(HttpMethod.GET, "/api/slots/**")
 	            .hasAnyRole("ADMIN", "RECEPTION", "DOCTOR")
+
+	            // Book slot → ADMIN, RECEPTION
+	            .requestMatchers(HttpMethod.PUT, "/api/slots/book/*")
+	            .hasAnyRole("ADMIN", "RECEPTION")
+
+	            // Release slot → ADMIN, RECEPTION
+	            .requestMatchers(HttpMethod.PATCH, "/api/slots/*/release")
+	            .hasAnyRole("ADMIN", "RECEPTION")
+
+	            // Everything else
 	            .anyRequest().authenticated()
 	        )
-	        .addFilterBefore(new JwtAuthenticationFilter(),
-	            UsernamePasswordAuthenticationFilter.class);
+	        .addFilterBefore(
+	            new JwtAuthenticationFilter(),
+	            UsernamePasswordAuthenticationFilter.class
+	        );
 
 	    return http.build();
-	}
+	    }
 }

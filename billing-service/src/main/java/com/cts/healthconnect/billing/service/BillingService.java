@@ -22,4 +22,5 @@ public interface BillingService {
     );
 
 	InvoiceResponseDto createInvoice(String appointmentCode, Long patientId, String doctorCode, Double totalAmount);
+
 }

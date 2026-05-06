@@ -24,7 +24,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationResponseDto sendNotification(NotificationRequestDto dto) {
 
-        String message = generateDynamicMessage(dto);
+        String message =
+                (dto.getMessage() != null && !dto.getMessage().isBlank())
+                        ? dto.getMessage()                     // ✅ USER MESSAGE
+                        : generateDynamicMessage(dto);         // ✅ FALLBACK
 
         Notification notification = Notification.builder()
                 .recipientId(dto.getRecipientId())
@@ -40,7 +43,6 @@ public class NotificationServiceImpl implements NotificationService {
 
         return mapToResponse(saved);
     }
-
     private void dispatchToMediums(NotificationRequestDto dto, String message) {
 
         String type = dto.getNotificationType().toUpperCase();

@@ -5,6 +5,8 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Data
 public class SlotCreateRequestDto {
 
@@ -13,17 +15,20 @@ public class SlotCreateRequestDto {
 
     @NotNull(message = "Slot date must be provided")
     @FutureOrPresent(message = "Slot date must be today or in the future")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate slotDate;
 
     @NotNull(message = "Start time must be provided")
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
 
     @NotNull(message = "End time must be provided")
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
     
     
     @Positive(message="Duration must be a positive number")
     @Min(value = 5, message = "Slot duration must be at least 5 minutes")
     @Max(value = 120, message = "Slot duration must not exceed 120 minutes")
-    private int slotDuration;
+    private Integer slotDuration;
 }

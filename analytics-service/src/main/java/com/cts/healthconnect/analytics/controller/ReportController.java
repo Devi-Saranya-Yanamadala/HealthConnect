@@ -7,16 +7,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/analytics") 
+@RequestMapping("/analytics/reports")   // ✅ MATCHES FRONTEND
 @RequiredArgsConstructor
 public class ReportController {
 
     private final ReportService reportService;
 
-    @GetMapping("/reports")
+    /* ✅ GET ALL REPORTS */
+    @GetMapping
     public ResponseEntity<List<ReportResponseDto>> listReports() {
         return ResponseEntity.ok(reportService.getAllReports());
     }
@@ -26,15 +28,19 @@ public class ReportController {
         return ResponseEntity.ok(reportService.generateReport(request));
     }
 
-    @GetMapping("/download/{reportId}")
+    /* ✅ DOWNLOAD REPORT */
+    @GetMapping("/{reportId}/download")
     public ResponseEntity<byte[]> download(@PathVariable String reportId) {
+
         byte[] pdfContent = reportService.generatePdfReport(reportId);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDisposition(ContentDisposition.attachment()
-                .filename("Hospital_Report_" + reportId + ".pdf")
-                .build());
+        headers.setContentDisposition(
+                ContentDisposition.attachment()
+                        .filename("Hospital_Report_" + reportId + ".pdf")
+                        .build()
+        );
 
         return new ResponseEntity<>(pdfContent, headers, HttpStatus.OK);
     }

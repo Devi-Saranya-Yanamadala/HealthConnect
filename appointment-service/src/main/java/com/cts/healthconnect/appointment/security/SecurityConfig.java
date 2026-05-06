@@ -27,13 +27,13 @@ public class SecurityConfig {
                 .requestMatchers(
                     HttpMethod.PATCH,
                     "/api/appointments/*/cancel"
-                ).hasAnyRole("RECEPTION", "DOCTOR")
+                ).hasAnyRole("RECEPTION", "DOCTOR","ADMIN")
 
                 // ✅ Book appointment
                 .requestMatchers(
                     HttpMethod.POST,
                     "/api/appointments"
-                ).hasAnyRole("RECEPTION")
+                ).hasAnyRole("RECEPTION","ADMIN")
 
                 // ✅ Complete appointment
                 .requestMatchers(

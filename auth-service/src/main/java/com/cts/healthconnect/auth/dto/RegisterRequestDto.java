@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,12 +27,12 @@ public class RegisterRequestDto {
     @NotNull(message = "Role is required")
     private Role role;
 
-    // ✅ EMAIL VALIDATION
+    // EMAIL VALIDATION
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     private String email;
 
-    // ✅ PHONE NUMBER VALIDATION
+    // PHONE NUMBER VALIDATION
     @NotBlank(message = "Phone number is required")
     @Pattern(
         regexp = "^[6-9][0-9]{9}$",

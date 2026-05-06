@@ -1,6 +1,7 @@
 package com.cts.healthconnect.ward.service;
 
 
+import com.cts.healthconnect.ward.client.PatientClient;
 import com.cts.healthconnect.ward.dto.*;
 import com.cts.healthconnect.ward.entity.*;
 import com.cts.healthconnect.ward.exception.*;
@@ -19,13 +20,24 @@ public class WardServiceImpl implements WardService {
 
     private final WardAdmissionRepository admissionRepository;
     private final BedRepository bedRepository;
+    private final PatientClient patientClient;
 
     @Override
     public WardAdmissionResponseDto admitPatient(WardAdmissionRequestDto dto) {
+    	
+    	PatientResponseDto patient = 
+    			patientClient.getPatient(dto.getPatientCode());
+    	
+    	// if patient doesn't exist
+		if(!Boolean.TRUE.equals(patient.getActive())) {
+		    throw new IllegalStateException("Patient is inactive");
+		}
+
 
         Bed bed = bedRepository.findByBedNumber(dto.getBedNumber())
                 .orElseThrow(() -> new BedNotAvailableException(dto.getBedNumber()));
 
+        // if bed is not vacant
         if (Boolean.TRUE.equals(bed.getOccupied())) {
             throw new BedNotAvailableException(dto.getBedNumber());
         }

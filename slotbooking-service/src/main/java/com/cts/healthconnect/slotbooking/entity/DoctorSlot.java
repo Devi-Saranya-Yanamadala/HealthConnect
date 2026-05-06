@@ -45,7 +45,8 @@ public class DoctorSlot {
     private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
-    private SlotStatus status;
+    @Column(nullable = false)
+    private SlotStatus status=SlotStatus.AVAILABLE; // Default value
 
     @CreationTimestamp
     private LocalDateTime createdAt;

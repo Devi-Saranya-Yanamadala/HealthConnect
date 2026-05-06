@@ -2,6 +2,8 @@ package com.cts.healthconnect.analytics.controller;
 
 import com.cts.healthconnect.analytics.dto.*;
 import com.cts.healthconnect.analytics.service.ReportService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +23,8 @@ public class ReportController {
         return ResponseEntity.ok(reportService.getAllReports());
     }
 
-    /* ✅ GENERATE REPORT */
-    @PostMapping
-    public ResponseEntity<ReportResponseDto> generate(
-            @RequestBody ReportRequestDto request
-    ) {
+    @PostMapping(value = "/generate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ReportResponseDto> generate(@Valid @RequestBody ReportRequestDto request) {
         return ResponseEntity.ok(reportService.generateReport(request));
     }
 

@@ -4,6 +4,8 @@ package com.cts.healthconnect.ward.controller;
 import com.cts.healthconnect.ward.dto.*;
 import com.cts.healthconnect.ward.entity.WardType;
 import com.cts.healthconnect.ward.service.*;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +20,7 @@ public class WardController {
     private final BedService bedService;
 
     @PostMapping("/admit")
-    public WardAdmissionResponseDto admit(@RequestBody WardAdmissionRequestDto dto) {
+    public WardAdmissionResponseDto admit(@Valid @RequestBody WardAdmissionRequestDto dto) {
         return wardService.admitPatient(dto);
     }
 

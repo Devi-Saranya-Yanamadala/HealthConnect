@@ -31,8 +31,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 // Match your exact controller path
-                .requestMatchers("/api/v1/audit/**").hasAnyRole("ADMIN", "COMPLIANCE_OFFICER")
-                .requestMatchers("/api/v1/compliance/**").hasAnyRole("ADMIN", "COMPLIANCE_OFFICER")
+                .requestMatchers("/api/audit/**").hasAnyRole("ADMIN", "COMPLIANCE_OFFICER")
+                .requestMatchers("/api/compliance/**").hasAnyRole("ADMIN", "COMPLIANCE_OFFICER")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

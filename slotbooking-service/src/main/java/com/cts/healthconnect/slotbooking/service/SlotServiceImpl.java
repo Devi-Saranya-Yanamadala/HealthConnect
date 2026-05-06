@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-
 public class SlotServiceImpl implements SlotService {
 
     private final SlotRepository repository;
@@ -26,9 +25,27 @@ public class SlotServiceImpl implements SlotService {
     @Override
     public void createSlots(SlotCreateRequestDto dto) {
 
+        if (dto.getDoctorCode() == null || dto.getDoctorCode().isBlank()) {
+            throw new IllegalArgumentException("Doctor code is required");
+        }
+
+        if (dto.getSlotDate() == null) {
+            throw new IllegalArgumentException("Slot date is required");
+        }
+
+        if (dto.getStartTime() == null || dto.getEndTime() == null) {
+            throw new IllegalArgumentException("Start time and end time are required");
+        }
+
+        if (!dto.getStartTime().isBefore(dto.getEndTime())) {
+            throw new IllegalArgumentException("Start time must be before end time");
+        }
+
         LocalTime start = dto.getStartTime();
 
-        while (start.isBefore(dto.getEndTime())) {
+        while (start.plusMinutes(dto.getSlotDuration()).isBefore(dto.getEndTime())
+                || start.plusMinutes(dto.getSlotDuration()).equals(dto.getEndTime())) {
+
             LocalTime end = start.plusMinutes(dto.getSlotDuration());
 
             DoctorSlot slot = DoctorSlot.builder()
@@ -60,8 +77,14 @@ public class SlotServiceImpl implements SlotService {
     @Override
     @Transactional
     public void bookSlot(Long slotId) {
-        DoctorSlot slot = repository.findByIdAndStatus(slotId, SlotStatus.AVAILABLE)
-                .orElseThrow(() -> new SlotNotAvailableException(slotId));
+
+        DoctorSlot slot = repository.findById(slotId)
+            .orElseThrow(() -> new SlotNotAvailableException(slotId));
+
+        if (slot.getStatus() != SlotStatus.AVAILABLE) {
+            throw new SlotNotAvailableException(slotId);
+        }
+
         slot.setStatus(SlotStatus.BOOKED);
     }
 
@@ -73,4 +96,3 @@ public class SlotServiceImpl implements SlotService {
         slot.setStatus(SlotStatus.AVAILABLE);
     }
 }
-

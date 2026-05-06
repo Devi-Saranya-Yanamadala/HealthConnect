@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,9 +35,13 @@ public class DoctorSlot {
     private String doctorCode;
 
     @Column(name = "slot_date", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate slotDate;
 
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
+
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)

@@ -8,4 +8,6 @@ public interface AnalyticsService {
     AnalyticsResponseDto getDashboardMetrics();
     
     KpiResponseDto getKpis();
+
+	AnalyticsResponseDto getRealTimeMetrics(String date);
 }

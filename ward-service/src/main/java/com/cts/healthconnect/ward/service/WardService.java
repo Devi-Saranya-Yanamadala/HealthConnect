@@ -16,4 +16,6 @@ public interface WardService {
     Long getTotalAdmissions();
     
     Long getActiveAdmissions();
+    Long getAdmissionCountByDate(String date);
+    Long getActiveAdmissionCountByDate(String date);
 }

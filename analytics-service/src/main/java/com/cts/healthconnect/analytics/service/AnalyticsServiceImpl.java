@@ -1,95 +1,96 @@
 package com.cts.healthconnect.analytics.service;
 
+import com.cts.healthconnect.analytics.client.*;
 import com.cts.healthconnect.analytics.dto.*;
 import com.cts.healthconnect.analytics.entity.HospitalMetrics;
 import com.cts.healthconnect.analytics.repository.HospitalMetricsRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AnalyticsServiceImpl implements AnalyticsService {
 
     private final HospitalMetricsRepository repository;
+    private final PatientClient             patientClient;
+    private final AppointmentClient         appointmentClient;
+    private final BillingClient             billingClient;
+    private final WardClient                wardClient;
 
-    /**
-     * Helper method to fetch the most recent metrics snapshot.
-     * Uses Optional to avoid throwing raw RuntimeExceptions.
-     */
-    private Optional<HospitalMetrics> getLatestMetrics() {
-        return repository.findAll(PageRequest.of(0, 1, Sort.by("updatedAt").descending()))
-                .getContent()
-                .stream()
-                .findFirst();
+    /* ─── reads from DB snapshot ─── */
+    private HospitalMetrics getLatest() {
+        return repository.findAll(
+            PageRequest.of(0, 1, Sort.by("updatedAt").descending())
+        ).getContent().stream().findFirst()
+         .orElseThrow(() -> new RuntimeException("No data found"));
     }
 
     @Override
-    @Transactional(readOnly = true)
     public AnalyticsResponseDto getDashboardMetrics() {
-        return getLatestMetrics()
-                .map(this::mapToDashboardDto)
-                .orElseGet(() -> {
-                    log.warn("Dashboard requested but no metrics found in database.");
-                    return createEmptyDashboardDto();
-                });
+        HospitalMetrics m = getLatest();
+        return AnalyticsResponseDto.builder()
+                .totalPatients(m.getTotalPatients())
+                .totalAppointments(m.getTotalAppointments())
+                .totalAdmissions(m.getTotalAdmissions())
+                .activeAdmissions(m.getActiveAdmissions())
+                .totalRevenue(m.getTotalRevenue())
+                .build();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public KpiResponseDto getKpis() {
-        return getLatestMetrics()
-                .map(this::mapToKpiDto)
-                .orElseGet(() -> {
-                    log.warn("KPIs requested but no metrics found in database.");
-                    return createEmptyKpiDto();
-                });
-    }
-
-    // --- Mapping Logic with Null Safety ---
-
-    private AnalyticsResponseDto mapToDashboardDto(HospitalMetrics metrics) {
-        return AnalyticsResponseDto.builder()
-                .totalPatients(nullSafe(metrics.getTotalPatients()))
-                .totalAppointments(nullSafe(metrics.getTotalAppointments()))
-                .totalAdmissions(nullSafe(metrics.getTotalAdmissions()))
-                .activeAdmissions(nullSafe(metrics.getActiveAdmissions()))
-                .totalRevenue(nullSafe(metrics.getTotalRevenue()))
+        HospitalMetrics m = getLatest();
+        return KpiResponseDto.builder()
+                .totalPatients(m.getTotalPatients())
+                .totalAppointments(m.getTotalAppointments())
+                .totalAdmissions(m.getTotalAdmissions())
+                .activeAdmissions(m.getActiveAdmissions())
+                .totalRevenue(m.getTotalRevenue())
                 .build();
     }
 
-    private KpiResponseDto mapToKpiDto(HospitalMetrics metrics) {
-        return KpiResponseDto.builder()
-                .totalPatients(nullSafe(metrics.getTotalPatients()))
-                .totalAppointments(nullSafe(metrics.getTotalAppointments()))
-                .totalAdmissions(nullSafe(metrics.getTotalAdmissions()))
-                .activeAdmissions(nullSafe(metrics.getActiveAdmissions()))
-                .totalRevenue(nullSafe(metrics.getTotalRevenue()))
+    /* ─── REAL TIME: fetches live date-wise data from all microservices ─── */
+    @Override
+    public AnalyticsResponseDto getRealTimeMetrics(String date) {
+
+        long   totalPatients     = fetchSafe(() -> patientClient.getPatientsByDate(date),         0L);
+        long   totalAppointments = fetchSafe(() -> appointmentClient.getAppointmentsByDate(date), 0L);
+        long   totalAdmissions   = fetchSafe(() -> wardClient.getAdmissionsByDate(date),          0L);
+        long   activeAdmissions  = fetchSafe(() -> wardClient.getActiveAdmissionsByDate(date),    0L);
+        double totalRevenue      = fetchSafe(() -> billingClient.getRevenueByDate(date),          0.0);
+
+        System.out.println(">>> DAILY [" + date + "]:"
+            + " patients="     + totalPatients
+            + " appointments=" + totalAppointments
+            + " admissions="   + totalAdmissions
+            + " active="       + activeAdmissions
+            + " revenue="      + totalRevenue);
+
+        return AnalyticsResponseDto.builder()
+                .totalPatients(totalPatients)
+                .totalAppointments(totalAppointments)
+                .totalAdmissions(totalAdmissions)
+                .activeAdmissions(activeAdmissions)
+                .totalRevenue(totalRevenue)
                 .build();
     }
 
-    // --- Default "Safe" Objects to prevent Frontend crashes ---
-
-    private AnalyticsResponseDto createEmptyDashboardDto() {
-        return AnalyticsResponseDto.builder()
-                .totalPatients(0L).totalAppointments(0L)
-                .totalAdmissions(0L).activeAdmissions(0L)
-                .totalRevenue(0.0).build();
+    /* ─── safe Feign wrapper — one failure won't block others ─── */
+    @FunctionalInterface
+    interface FeignCall<T> {
+        T call() throws Exception;
     }
 
-    private KpiResponseDto createEmptyKpiDto() {
-        return KpiResponseDto.builder()
-                .totalPatients(0L).totalAppointments(0L)
-                .totalAdmissions(0L).activeAdmissions(0L)
-                .totalRevenue(0.0).build();
+    private <T> T fetchSafe(FeignCall<T> call, T fallback) {
+        try {
+            T result = call.call();
+            System.out.println(">>> FETCH OK: " + result);
+            return result;
+        } catch (Exception e) {
+            System.err.println(">>> FETCH FAILED: " + e.getMessage());
+            return fallback;
+        }
     }
-
-    private Long nullSafe(Long value) { return value != null ? value : 0L; }
-    private Double nullSafe(Double value) { return value != null ? value : 0.0; }
 }

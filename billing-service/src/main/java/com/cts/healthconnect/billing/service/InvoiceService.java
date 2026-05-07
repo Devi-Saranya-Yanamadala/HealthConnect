@@ -12,5 +12,6 @@ public interface InvoiceService {
     void markInvoicePaid(String invoiceNumber);
     
     Double getTotalRevenue();
+    Double getRevenueByDate(String date);
 }
 

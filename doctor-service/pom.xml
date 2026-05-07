@@ -98,6 +98,11 @@
 		    <scope>provided</scope>
 		</dependency>
 		
+		<!-- OpenFeign for Audit Client -->
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
 		<!-- Eureka Client (Recommended if using service discovery) -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>

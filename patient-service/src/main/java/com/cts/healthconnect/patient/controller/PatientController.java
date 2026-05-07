@@ -36,8 +36,13 @@ public class PatientController {
         return service.markPatientDeceased(patientCode);
     }
     
-    @GetMapping("/api/patients/count")
+    @GetMapping("/count")
     public Long getTotalPatients() {
     	return service.getTotalPatients();
+    }
+    
+    @GetMapping("/count/by-date")
+    public Long getPatientsByDate(@RequestParam String date) {
+        return service.getPatientCountByDate(date);
     }
 }

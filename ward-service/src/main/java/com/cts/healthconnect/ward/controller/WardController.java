@@ -48,4 +48,15 @@ public class WardController {
     public Long getActiveAdmissions() {
         return wardService.getActiveAdmissions();
     }
+ // ✅ ADDED: count admissions on a specific date
+    @GetMapping("/admissions/count/by-date")
+    public Long getAdmissionsByDate(@RequestParam String date) {
+        return wardService.getAdmissionCountByDate(date);
+    }
+
+    // ✅ ADDED: count active admissions on a specific date
+    @GetMapping("/admissions/active/by-date")
+    public Long getActiveAdmissionsByDate(@RequestParam String date) {
+        return wardService.getActiveAdmissionCountByDate(date);
+    }
 }

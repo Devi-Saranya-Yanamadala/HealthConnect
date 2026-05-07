@@ -1,8 +1,5 @@
 package com.cts.healthconnect.patient.security;
 
-
-
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -12,7 +9,6 @@ import java.security.Key;
 
 public class JwtUtil {
 
-    // ✅ EXACT SAME SECRET AS auth-service
     private static final String SECRET_KEY =
             "healthconnect-secret-key-healthconnect-32";
 
@@ -20,9 +16,8 @@ public class JwtUtil {
             Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
     public static Claims parse(String token) {
-
         return Jwts.parserBuilder()
-                .setSigningKey(KEY)   // ✅ CORRECT
+                .setSigningKey(KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

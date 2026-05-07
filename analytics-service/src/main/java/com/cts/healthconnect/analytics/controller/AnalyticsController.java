@@ -21,4 +21,10 @@ public class AnalyticsController {
     public KpiResponseDto getKpis() {
         return service.getKpis();
     }
+    @GetMapping("/daily")
+    public AnalyticsResponseDto getDailyStats(@RequestParam("date") String date) {
+        return service.getRealTimeMetrics(date);
+    }
+    
+    
 }

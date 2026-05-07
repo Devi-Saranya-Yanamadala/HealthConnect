@@ -17,6 +17,7 @@ boolean existsByPatientIdAndDoctorCodeAndAppointmentDate(
         String doctorCode,
         LocalDate appointmentDate
     );
+Long countByAppointmentDate(LocalDate date);
 
 }
 

@@ -1,5 +1,6 @@
 package com.cts.healthconnect.appointment.service;
 
+import com.cts.healthconnect.appointment.client.AuditClient;
 import com.cts.healthconnect.appointment.client.SlotBookingClient;
 import com.cts.healthconnect.appointment.dto.*;
 import com.cts.healthconnect.appointment.entity.*;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -17,14 +20,11 @@ import java.util.UUID;
 public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository repository;
-    private final SlotBookingClient slotClient;
+    private final SlotBookingClient     slotClient;
+    private final AuditClient           auditClient;
 
-    // =======================
-    // BOOK APPOINTMENT
-    // =======================
     @Override
     public AppointmentResponseDto bookAppointment(AppointmentRequestDto dto) {
-
         boolean alreadyBooked =
                 repository.existsByPatientIdAndDoctorCodeAndAppointmentDate(
                         dto.getPatientId(),
@@ -49,24 +49,26 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .status(AppointmentStatus.BOOKED)
                 .build();
 
-        return mapToResponse(repository.save(appointment));
+        repository.save(appointment);
+
+        // ✅ AUDIT LOG
+        audit("BOOK_APPOINTMENT", appointment.getAppointmentCode(),
+              "Patient: " + dto.getPatientId()
+              + " | Doctor: " + dto.getDoctorCode()
+              + " | Date: " + dto.getAppointmentDate());
+
+        return mapToResponse(appointment);
     }
 
-    // =======================
-    // PATCH → CANCEL
-    // =======================
     @Override
     public AppointmentResponseDto cancelAppointmentById(Long appointmentId) {
-
         Appointment appointment = repository.findById(appointmentId)
                 .orElseThrow(() ->
                         new AppointmentNotFoundException("Appointment not found"));
-
         return cancelInternal(appointment);
     }
 
     private AppointmentResponseDto cancelInternal(Appointment appointment) {
-
         if (appointment.getStatus() != AppointmentStatus.BOOKED) {
             throw new IllegalStateException(
                     "Only BOOKED appointments can be cancelled");
@@ -74,14 +76,15 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         slotClient.releaseSlot(appointment.getSlotId());
         appointment.setStatus(AppointmentStatus.CANCELLED);
-
         repository.save(appointment);
+
+        // ✅ AUDIT LOG
+        audit("CANCEL_APPOINTMENT", appointment.getAppointmentCode(),
+              "Appointment cancelled");
+
         return mapToResponse(appointment);
     }
 
-    // =======================
-    // RESCHEDULE
-    // =======================
     @Override
     public AppointmentResponseDto rescheduleAppointment(
             AppointmentRescheduleRequestDto dto) {
@@ -107,17 +110,17 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         appointment.setSlotId(dto.getNewSlotId());
         appointment.setAppointmentDate(dto.getNewAppointmentDate());
-
         repository.save(appointment);
+
+        // ✅ AUDIT LOG
+        audit("RESCHEDULE_APPOINTMENT", appointment.getAppointmentCode(),
+              "Rescheduled to: " + dto.getNewAppointmentDate());
+
         return mapToResponse(appointment);
     }
 
-    // =======================
-    // PATCH → COMPLETE ✅
-    // =======================
     @Override
     public AppointmentResponseDto completeAppointmentById(Long appointmentId) {
-
         Appointment appointment = repository.findById(appointmentId)
                 .orElseThrow(() ->
                         new AppointmentNotFoundException("Appointment not found"));
@@ -130,20 +133,39 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setStatus(AppointmentStatus.COMPLETED);
         repository.save(appointment);
 
+        // ✅ AUDIT LOG
+        audit("COMPLETE_APPOINTMENT", appointment.getAppointmentCode(),
+              "Appointment completed");
+
         return mapToResponse(appointment);
     }
 
-    // =======================
-    // COUNT
-    // =======================
     @Override
     public Long getTotalAppointments() {
         return repository.count();
     }
 
-    // =======================
-    // MAPPER
-    // =======================
+    @Override
+    public Long getAppointmentCountByDate(String date) {
+        LocalDate localDate = LocalDate.parse(date);
+        return repository.countByAppointmentDate(localDate);
+    }
+
+    // ✅ Audit helper
+    private void audit(String action, String resourceId, String details) {
+        try {
+            auditClient.log(Map.of(
+                "module",      "APPOINTMENT",
+                "action",      action,
+                "performedBy", "system",
+                "resourceId",  resourceId != null ? resourceId : "",
+                "details",     details != null ? details : ""
+            ));
+        } catch (Exception e) {
+            System.err.println(">>> AUDIT FAILED [APPOINTMENT]: " + e.getMessage());
+        }
+    }
+
     private AppointmentResponseDto mapToResponse(Appointment appointment) {
         return AppointmentResponseDto.builder()
                 .appointmentCode(appointment.getAppointmentCode())

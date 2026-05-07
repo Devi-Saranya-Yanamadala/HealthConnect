@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/analytics/reports")   // ✅ MATCHES FRONTEND
+@RequestMapping("/api/analytics/reports")   // ✅ MATCHES FRONTEND
 @RequiredArgsConstructor
 public class ReportController {
 

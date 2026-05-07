@@ -51,4 +51,10 @@ public class AppointmentController {
     public Long getTotalAppointments() {
         return service.getTotalAppointments();
     }
+    
+ // ✅ ADDED: count appointments on a specific date
+    @GetMapping("/count/by-date")
+    public Long getAppointmentsByDate(@RequestParam String date) {
+        return service.getAppointmentCountByDate(date);
+    }
 }

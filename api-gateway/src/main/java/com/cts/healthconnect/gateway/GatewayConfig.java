@@ -1,6 +1,5 @@
 package com.cts.healthconnect.gateway;
 
-
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.context.annotation.Bean;
@@ -42,9 +41,14 @@ public class GatewayConfig {
 
             .route("analytics", r -> r.path("/api/analytics/**")
                 .uri("http://localhost:5008"))
-            
-            .route("analytics", r -> r.path("/api/Audit-Compliance/**")
-                    .uri("http://localhost:5010"))
+
+            // ✅ FIXED: was named "analytics" (duplicate) with wrong path
+            .route("audit", r -> r.path("/api/audit/**")
+                .uri("http://localhost:5010"))
+
+            // ✅ ADDED: was completely missing
+            .route("compliance", r -> r.path("/api/compliance/**")
+                .uri("http://localhost:5010"))
 
             .build();
     }

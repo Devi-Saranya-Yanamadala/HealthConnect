@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cts.healthconnect.billing.dto.InvoiceRequestDto;
@@ -42,5 +43,9 @@ public class InvoiceController {
 	public Double getTotalRevenue() {
 		return service.getTotalRevenue();
 	}
-
+	
+	@GetMapping("/revenue/by-date")
+	public Double getRevenueByDate(@RequestParam("date") String date) {
+	    return service.getRevenueByDate(date);
+	}
 }

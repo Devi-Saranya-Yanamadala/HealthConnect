@@ -1,30 +1,38 @@
 package com.cts.healthconnect.analytics.security;
 
-
-
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.function.Function;
 
+@Component
 public class JwtUtil {
 
-    // ✅ EXACT SAME SECRET AS auth-service
-    private static final String SECRET_KEY =
-            "healthconnect-secret-key-healthconnect-32";
+    @Value("${jwt.secret}")
+    private String secretKey;
 
-    private static final Key KEY =
-            Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    }
 
-    public static Claims parse(String token) {
-
+    public Claims parse(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(KEY)   // ✅ CORRECT
+                .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    public <T> T extractClaim(String token, Function<Claims, T> resolver) {
+        return resolver.apply(parse(token));
     }
 }

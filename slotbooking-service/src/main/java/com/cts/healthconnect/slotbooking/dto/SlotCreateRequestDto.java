@@ -25,7 +25,9 @@ public class SlotCreateRequestDto {
     @NotNull(message = "End time must be provided")
     @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
-
+    
+    
+    @Positive(message="Duration must be a positive number")
     @Min(value = 5, message = "Slot duration must be at least 5 minutes")
     @Max(value = 120, message = "Slot duration must not exceed 120 minutes")
     private Integer slotDuration;

@@ -19,6 +19,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private final BillingClient             billingClient;
     private final WardClient                wardClient;
 
+    /* ─── reads from DB snapshot ─── */
     private HospitalMetrics getLatest() {
         return repository.findAll(
             PageRequest.of(0, 1, Sort.by("updatedAt").descending())
@@ -50,7 +51,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .build();
     }
 
-    // ✅ REAL TIME date-wise data from all microservices
+    /* ─── REAL TIME: fetches live date-wise data from all microservices ─── */
     @Override
     public AnalyticsResponseDto getRealTimeMetrics(String date) {
 
@@ -76,6 +77,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .build();
     }
 
+    /* ─── safe Feign wrapper — one failure won't block others ─── */
     @FunctionalInterface
     interface FeignCall<T> {
         T call() throws Exception;

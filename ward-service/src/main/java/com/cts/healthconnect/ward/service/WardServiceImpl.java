@@ -25,6 +25,7 @@ public class WardServiceImpl implements WardService {
 
     @Override
     public WardAdmissionResponseDto admitPatient(WardAdmissionRequestDto dto) {
+
         Bed bed = bedRepository.findByBedNumber(dto.getBedNumber())
                 .orElseThrow(() -> new BedNotAvailableException(dto.getBedNumber()));
 
@@ -45,7 +46,7 @@ public class WardServiceImpl implements WardService {
 
         admissionRepository.save(admission);
 
-        // ✅ AUDIT LOG
+        // ✅ Audit log
         audit("ADMIT_PATIENT", admission.getAdmissionCode(),
               "Patient: " + dto.getPatientCode()
               + " | Ward: " + dto.getWardType()
@@ -63,6 +64,7 @@ public class WardServiceImpl implements WardService {
 
     @Override
     public void dischargePatient(String admissionCode) {
+
         WardAdmission admission = admissionRepository.findByAdmissionCode(admissionCode)
                 .orElseThrow(() -> new AdmissionNotFoundException(admissionCode));
 
@@ -73,7 +75,7 @@ public class WardServiceImpl implements WardService {
                 .orElseThrow();
         bed.setOccupied(false);
 
-        // ✅ AUDIT LOG
+        // ✅ Audit log
         audit("DISCHARGE_PATIENT", admissionCode,
               "Patient: " + admission.getPatientCode() + " discharged");
     }
@@ -88,6 +90,7 @@ public class WardServiceImpl implements WardService {
         return admissionRepository.countByStatus(AdmissionStatus.ADMITTED);
     }
 
+    // ✅ ADDED: count admissions on a specific date
     @Override
     public Long getAdmissionCountByDate(String date) {
         LocalDate localDate = LocalDate.parse(date);
@@ -96,6 +99,7 @@ public class WardServiceImpl implements WardService {
         return admissionRepository.countByAdmittedAtBetween(start, end);
     }
 
+    // ✅ ADDED: count active admissions on a specific date
     @Override
     public Long getActiveAdmissionCountByDate(String date) {
         LocalDate localDate = LocalDate.parse(date);
@@ -106,7 +110,7 @@ public class WardServiceImpl implements WardService {
         );
     }
 
-    // ✅ Audit helper
+    // ✅ Audit helper — never throws, silent on failure
     private void audit(String action, String resourceId, String details) {
         try {
             auditClient.log(Map.of(
@@ -114,7 +118,7 @@ public class WardServiceImpl implements WardService {
                 "action",      action,
                 "performedBy", "system",
                 "resourceId",  resourceId != null ? resourceId : "",
-                "details",     details != null ? details : ""
+                "details",     details    != null ? details    : ""
             ));
         } catch (Exception e) {
             System.err.println(">>> AUDIT FAILED [WARD]: " + e.getMessage());

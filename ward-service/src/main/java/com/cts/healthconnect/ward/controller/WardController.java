@@ -7,6 +7,8 @@ import com.cts.healthconnect.ward.service.*;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +29,10 @@ public class WardController {
     @GetMapping("/{admissionCode}")
     public WardAdmissionResponseDto get(@PathVariable String admissionCode) {
         return wardService.getAdmission(admissionCode);
+    }
+    @GetMapping("/beds")
+    public ResponseEntity<?> getBedsByWardType(@RequestParam WardType wardType) {
+        return ResponseEntity.ok(bedService.getAllBeds(wardType));
     }
 
     @PutMapping("/{admissionCode}/discharge")

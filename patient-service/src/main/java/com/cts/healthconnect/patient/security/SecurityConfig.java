@@ -17,7 +17,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 // ✅ FIXED: /count must be accessible by ANALYTICS service (ADMIN role)
-                .requestMatchers("/api/patients/count").hasAnyRole("ADMIN", "COMPLIANCE_OFFICER")
+                .requestMatchers("/api/patients/count").permitAll()
                 .requestMatchers("/api/patients/**").hasAnyRole("ADMIN", "RECEPTION", "DOCTOR")
                 .anyRequest().authenticated()
             )

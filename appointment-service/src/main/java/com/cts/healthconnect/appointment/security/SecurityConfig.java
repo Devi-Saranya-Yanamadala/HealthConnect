@@ -40,7 +40,7 @@ public class SecurityConfig {
 
                 // Count endpoints — accessible by ADMIN and analytics service
                 .requestMatchers(HttpMethod.GET, "/api/appointments/count")
-                    .hasAnyRole("ADMIN", "COMPLIANCE_OFFICER")
+                    .permitAll()
 
                 // ✅ ADDED: date-wise count for analytics calendar
                 .requestMatchers(HttpMethod.GET, "/api/appointments/count/by-date")

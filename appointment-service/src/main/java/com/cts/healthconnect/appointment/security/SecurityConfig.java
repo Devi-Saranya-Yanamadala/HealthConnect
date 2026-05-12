@@ -24,7 +24,7 @@ public class SecurityConfig {
 
                 // Book appointment
                 .requestMatchers(HttpMethod.POST, "/api/appointments")
-                    .hasAnyRole("RECEPTION", "ADMIN")
+                    .hasAnyRole("RECEPTION", "ADMIN","DOCTOR")
 
                 // Cancel appointment
                 .requestMatchers(HttpMethod.PATCH, "/api/appointments/*/cancel")
@@ -44,7 +44,7 @@ public class SecurityConfig {
 
                 // ✅ ADDED: date-wise count for analytics calendar
                 .requestMatchers(HttpMethod.GET, "/api/appointments/count/by-date")
-                    .hasAnyRole("ADMIN", "COMPLIANCE_OFFICER")
+                    .hasAnyRole("ADMIN", "COMPLIANCE_OFFICER","BILLING")
 
                 .anyRequest().authenticated()
             )

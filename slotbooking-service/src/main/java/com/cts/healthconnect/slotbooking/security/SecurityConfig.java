@@ -32,7 +32,7 @@ public class SecurityConfig {
 
 	            // Book slot → ADMIN, RECEPTION
 	            .requestMatchers(HttpMethod.PUT, "/api/slots/book/*")
-	            .hasAnyRole("ADMIN", "RECEPTION")
+	            .hasAnyRole("ADMIN", "RECEPTION","DOCTOR")
 
 	            // Release slot → ADMIN, RECEPTION
 	            .requestMatchers(HttpMethod.PATCH, "/api/slots/*/release")

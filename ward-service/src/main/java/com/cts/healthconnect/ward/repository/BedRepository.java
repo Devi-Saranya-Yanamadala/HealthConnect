@@ -14,5 +14,6 @@ public interface BedRepository extends JpaRepository<Bed, Long> {
     List<Bed> findByWardTypeAndOccupiedFalse(WardType wardType);
 
     Optional<Bed> findByBedNumber(String bedNumber);
+    List<Bed> findByWardType(WardType wardType);
 }
 

@@ -2,6 +2,7 @@ package com.cts.healthconnect.ward.service;
 
 
 
+import com.cts.healthconnect.ward.dto.BedResponseDto;
 import com.cts.healthconnect.ward.entity.Bed;
 import com.cts.healthconnect.ward.entity.WardType;
 import com.cts.healthconnect.ward.repository.BedRepository;
@@ -23,5 +24,16 @@ public class BedServiceImpl implements BedService {
                 .stream()
                 .map(Bed::getBedNumber)
                 .toList();
+    }
+    @Override
+    public List<BedResponseDto> getAllBeds(WardType wardType) {
+        return repository.findByWardType(wardType)
+            .stream()
+            .map(bed -> BedResponseDto.builder()
+                .bedNumber(bed.getBedNumber())
+                .wardType(bed.getWardType().name())
+                .status(Boolean.TRUE.equals(bed.getOccupied()) ? "OCCUPIED" : "AVAILABLE")
+                .build())
+            .toList();
     }
 }

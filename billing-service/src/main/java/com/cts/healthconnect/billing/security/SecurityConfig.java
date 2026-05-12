@@ -17,8 +17,6 @@ public class SecurityConfig {
 	            .requestMatchers("/api/invoices/**")
 	            
 	            .hasAnyRole("BILLING","ADMIN")
-
-
 	            .anyRequest().authenticated()
 	        )
 	        .addFilterBefore(new JwtAuthenticationFilter(),

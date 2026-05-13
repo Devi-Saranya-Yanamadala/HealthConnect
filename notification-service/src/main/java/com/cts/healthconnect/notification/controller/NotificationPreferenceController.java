@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/notifications/preferences")
+@RequestMapping("/api/notifications/preferences")
 @RequiredArgsConstructor
 public class NotificationPreferenceController {
 

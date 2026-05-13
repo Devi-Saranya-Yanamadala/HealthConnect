@@ -52,8 +52,9 @@ public class NotificationDispatchServiceImpl
     }
 
     private String determineChannel(NotificationDispatchRequestDto dto) {
-        if (dto.getRecipientEmail() != null) return "EMAIL";
-        if (dto.getRecipientPhone() != null) return "SMS";
+        // SMS service removed — EMAIL only
+        if (dto.getRecipientEmail() != null && !dto.getRecipientEmail().isBlank())
+            return "EMAIL";
         return "IN_APP";
     }
 }

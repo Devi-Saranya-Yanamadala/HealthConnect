@@ -1,7 +1,5 @@
 package com.cts.healthconnect.notification.security;
 
-
-
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -25,17 +23,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String header = req.getHeader("Authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
-            Claims claims = JwtUtil.parse(header.substring(7));
-
-            String role = claims.get("role", String.class);
-
-            Authentication auth = new UsernamePasswordAuthenticationToken(
-                claims.getSubject(),
-                null,
-                List.of(new SimpleGrantedAuthority("ROLE_" + role))
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            try {
+                Claims claims = JwtUtil.parse(header.substring(7));
+                String role = claims.get("role", String.class);
+                Authentication auth = new UsernamePasswordAuthenticationToken(
+                    claims.getSubject(),
+                    null,
+                    List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                );
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            } catch (Exception e) {
+                SecurityContextHolder.clearContext();
+            }
         }
 
         chain.doFilter(req, res);

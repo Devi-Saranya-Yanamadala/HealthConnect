@@ -57,42 +57,124 @@ public class NotificationServiceImpl implements NotificationService {
                         .orElse(null);
 
         boolean emailEnabled = preference == null || preference.isEmailEnabled();
-        boolean smsEnabled   = preference == null || preference.isSmsEnabled();
 
-        // ✅ SMS notifications
-        if (smsEnabled && (type.equals("APPOINTMENT") || type.equals("ADMISSION"))) {
-            sendSmsAlert(dto.getRecipientPhone(), message);
-        }
+        // ✅ EMAIL ONLY — no SMS service
+        if (emailEnabled && dto.getRecipientEmail() != null
+                && !dto.getRecipientEmail().isBlank()) {
 
-        // ✅ EMAIL notifications (ASYNC via EmailService)
-        if (emailEnabled && (type.equals("BILLING")
-                || type.equals("INVOICE")
-                || type.equals("PRESCRIPTION"))) {
-        	log.info("➡️ About to send email for type {}", type);
+            String subject = buildEmailSubject(type);
+            log.info("➡️ Dispatching EMAIL for type {} to {}", type, dto.getRecipientEmail());
 
             emailService.sendEmail(
                     dto.getRecipientEmail(),
-                    "HealthConnect Notification: " + type,
+                    subject,
                     message
             );
+        } else {
+            log.info("ℹ️ Email skipped — no email address provided or disabled for type {}", type);
         }
     }
 
-    private void sendSmsAlert(String phone, String message) {
-        if (phone == null || phone.isBlank()) return;
-        log.info("📩 SMS SENT → {} : {}", phone, message);
+    private String buildEmailSubject(String type) {
+        return switch (type) {
+            case "APPOINTMENT"  -> "HealthConnect — Appointment Confirmation";
+            case "ADMISSION"    -> "HealthConnect — Hospital Admission Notice";
+            case "BILLING"      -> "HealthConnect — Invoice Generated";
+            case "INVOICE"      -> "HealthConnect — Payment Invoice";
+            case "PRESCRIPTION" -> "HealthConnect — Prescription Issued";
+            default             -> "HealthConnect — Notification";
+        };
     }
 
     private String generateDynamicMessage(NotificationRequestDto dto) {
+        String recipientType = dto.getRecipientType() != null
+                ? dto.getRecipientType() : "User";
+
         return switch (dto.getNotificationType().toUpperCase()) {
-            case "APPOINTMENT" ->
-                    "HealthConnect: Appointment confirmed.";
-            case "ADMISSION" ->
-                    "HealthConnect: Admission confirmed.";
-            case "BILLING", "INVOICE" ->
-                    "HealthConnect: Invoice generated.";
-            default ->
-                    "HealthConnect: New notification.";
+
+            case "APPOINTMENT" -> """
+                Dear %s,
+
+                Your appointment has been successfully scheduled at HealthConnect Hospital.
+
+                Please arrive 15 minutes before your scheduled time and carry a valid ID and any previous medical records.
+
+                If you need to reschedule or cancel, please contact us at least 24 hours in advance.
+
+                Thank you for choosing HealthConnect Hospital.
+
+                Warm regards,
+                HealthConnect Medical Team
+                """.formatted(recipientType);
+
+            case "ADMISSION" -> """
+                Dear %s,
+
+                You have been successfully admitted to HealthConnect Hospital.
+
+                Our medical team will attend to you shortly. Please ensure your emergency contact details are updated with the front desk.
+
+                For any immediate assistance, please contact the nurse station.
+
+                Wishing you a speedy recovery.
+
+                Warm regards,
+                HealthConnect Medical Team
+                """.formatted(recipientType);
+
+            case "BILLING" -> """
+                Dear %s,
+
+                Your invoice has been generated at HealthConnect Hospital.
+
+                Please review your billing details and complete the payment at the billing counter or via our online portal.
+
+                For any billing queries, please contact our billing department.
+
+                Thank you for choosing HealthConnect Hospital.
+
+                Warm regards,
+                HealthConnect Billing Department
+                """.formatted(recipientType);
+
+            case "INVOICE" -> """
+                Dear %s,
+
+                Your payment invoice from HealthConnect Hospital is ready.
+
+                Kindly make the payment within the stipulated time to avoid any inconvenience. You may pay at the billing counter or through our authorized payment channels.
+
+                Please retain this notification for your records.
+
+                Warm regards,
+                HealthConnect Billing Department
+                """.formatted(recipientType);
+
+            case "PRESCRIPTION" -> """
+                Dear %s,
+
+                Your prescription has been issued by your doctor at HealthConnect Hospital.
+
+                Please collect your prescription from the pharmacy counter. Ensure you follow the dosage instructions as prescribed.
+
+                For any queries regarding your prescription, please consult your doctor.
+
+                Take care and get well soon.
+
+                Warm regards,
+                HealthConnect Medical Team
+                """.formatted(recipientType);
+
+            default -> """
+                Dear %s,
+
+                You have a new notification from HealthConnect Hospital.
+
+                Please log in to the HealthConnect portal for more details.
+
+                Warm regards,
+                HealthConnect Team
+                """.formatted(recipientType);
         };
     }
 

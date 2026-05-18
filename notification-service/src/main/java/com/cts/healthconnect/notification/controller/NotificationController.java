@@ -29,4 +29,10 @@ public class NotificationController {
     public void markRead(@PathVariable Long id) {
         service.markAsRead(id);
     }
+    
+    @GetMapping("/by-type")
+    public List<NotificationResponseDto> getByRecipientType(
+            @RequestParam String recipientType) {
+        return service.getNotificationsByType(recipientType);
+    }
 }

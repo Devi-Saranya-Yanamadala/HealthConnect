@@ -44,4 +44,9 @@ public class DoctorController {
     public void deactivate(@PathVariable String code) {
         service.deactivateDoctor(code);
     }
+    
+    @PutMapping("/{code}/activate")
+    public void activateDoctor(@PathVariable String code) {
+        service.activateDoctor(code);
+    }
 }

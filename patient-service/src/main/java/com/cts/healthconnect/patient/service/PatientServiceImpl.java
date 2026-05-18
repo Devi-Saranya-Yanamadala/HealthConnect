@@ -25,8 +25,10 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public PatientResponseDto registerPatient(PatientRequestDto dto) {
+        String patientCode = generatePatientCode();
+
         Patient patient = Patient.builder()
-                .patientCode(dto.getPatientCode())
+                .patientCode(patientCode)
                 .fullName(dto.getFullName())
                 .gender(dto.getGender())
                 .dob(dto.getDob())
@@ -43,10 +45,16 @@ public class PatientServiceImpl implements PatientService {
 
         repository.save(patient);
 
-        // ✅ AUDIT LOG
         audit("REGISTER_PATIENT", patient.getPatientCode(),
               "Patient registered: " + dto.getFullName());
 
+        return map(patient);
+    }
+    
+    @Override
+    public PatientResponseDto getPatientById(Long id) {
+        Patient patient = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Patient not found with id: " + id));
         return map(patient);
     }
 
@@ -72,7 +80,7 @@ public class PatientServiceImpl implements PatientService {
         patient.setActive(true);
         patient.setStatus(PatientStatus.ACTIVE);
 
-        // ✅ AUDIT LOG
+        // AUDIT LOG
         audit("ACTIVATE_PATIENT", patientCode, "Patient activated");
     }
 
@@ -83,7 +91,7 @@ public class PatientServiceImpl implements PatientService {
         patient.setActive(false);
         patient.setStatus(PatientStatus.INACTIVE);
 
-        // ✅ AUDIT LOG
+        // AUDIT LOG
         audit("DEACTIVATE_PATIENT", patientCode, "Patient deactivated");
     }
 
@@ -112,8 +120,14 @@ public class PatientServiceImpl implements PatientService {
         LocalDateTime end   = localDate.atTime(23, 59, 59);
         return repository.countByCreatedAtBetween(start, end);
     }
+    
+    // Patient code generator
+    private String generatePatientCode() {
+        long count = repository.count() + 1;
+        return String.format("PAT%03d", count);
+    }
 
-    // ✅ Audit helper — never throws, failure is silent
+    // Audit helper — never throws, failure is silent
     private void audit(String action, String resourceId, String details) {
         try {
             auditClient.log(Map.of(
@@ -135,6 +149,7 @@ public class PatientServiceImpl implements PatientService {
                 .fullName(p.getFullName())
                 .gender(p.getGender())
                 .phone(p.getPhone())
+                .email(p.getEmail()) 
                 .bloodGroup(p.getBloodGroup())
                 .status(p.getStatus())
                 .active(p.getActive())

@@ -36,7 +36,7 @@ public class DoctorServiceImpl implements DoctorService {
 
         repository.save(doctor);
 
-        // ✅ AUDIT LOG
+        // AUDIT LOG
         audit("CREATE_DOCTOR", doctor.getDoctorCode(),
               "Doctor created: " + dto.getFullName()
               + " | Dept: " + dto.getDepartment());
@@ -64,13 +64,25 @@ public class DoctorServiceImpl implements DoctorService {
         Doctor doctor = repository.findByDoctorCode(code)
                 .orElseThrow(() -> new DoctorNotFoundException(code));
         doctor.setActive(false);
+        repository.save(doctor); 
 
-        // ✅ AUDIT LOG
+        // AUDIT LOG
         audit("DEACTIVATE_DOCTOR", code,
               "Doctor deactivated: " + doctor.getFullName());
     }
+    
+    @Override
+    public void activateDoctor(String code) {
+        Doctor doctor = repository.findByDoctorCode(code)
+                .orElseThrow(() -> new DoctorNotFoundException(code));
+        doctor.setActive(true);
+        repository.save(doctor);
 
-    // ✅ Audit helper
+        audit("ACTIVATE_DOCTOR", code,
+              "Doctor activated: " + doctor.getFullName());
+    }
+
+    // Audit helper
     private void audit(String action, String resourceId, String details) {
         try {
             auditClient.log(Map.of(

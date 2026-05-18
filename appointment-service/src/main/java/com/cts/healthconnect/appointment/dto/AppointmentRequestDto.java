@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Data
 public class AppointmentRequestDto {
 
-    private Long patientId;
+    private String patientCode;  
     private String doctorCode;
     private Long slotId;
     private LocalDate appointmentDate;

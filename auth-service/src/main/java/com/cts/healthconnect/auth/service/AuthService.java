@@ -13,7 +13,10 @@ public interface AuthService {
 	AuthResponseDto refreshAccessToken(RefreshTokenRequestDto dto);
 
 	void logout(RefreshTokenRequestDto dto);
-
+	
+	void forgotPassword(ForgotPasswordRequestDto dto);
+	
+	void verifyOtpAndReset(VerifyOtpRequestDto dto);
 	
 }
 

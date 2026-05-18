@@ -14,6 +14,7 @@ public class PatientResponseDto {
     private String fullName;
     private Gender gender;
     private String phone;
+    private String email;  
     private BloodGroup bloodGroup;
     private PatientStatus status;
     private Boolean active;

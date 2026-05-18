@@ -11,8 +11,10 @@ import java.time.LocalDate;
 @Builder
 public class AppointmentResponseDto {
 
+	private Long   id;
     private String appointmentCode;
     private Long patientId;
+    private String patientCode;
     private String doctorCode;
     private LocalDate appointmentDate;
     private String status;

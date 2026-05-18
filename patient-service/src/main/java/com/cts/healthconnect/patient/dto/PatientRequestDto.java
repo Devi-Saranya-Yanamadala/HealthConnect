@@ -9,9 +9,9 @@ import java.time.LocalDate;
 @Data
 public class PatientRequestDto {
 
-    @NotBlank(message = "Patient code must not be blank")
+    /*@NotBlank(message = "Patient code must not be blank")
     @Size(min = 3, max = 20, message = "Patient code must be between 3 and 20 characters")
-    private String patientCode;
+    private String patientCode;*/
 
     @NotBlank(message = "Full name must not be blank")
     @Size(min = 3, max = 100, message = "Full name must be between 3 and 100 characters")

@@ -4,8 +4,11 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.cts.healthconnect.billing.client.NotificationClient;
+import com.cts.healthconnect.billing.client.PatientClient;
 import com.cts.healthconnect.billing.dto.InsuranceClaimRequestDto;
 import com.cts.healthconnect.billing.dto.InsuranceClaimResponseDto;
+import com.cts.healthconnect.billing.dto.NotificationRequestDto;
 import com.cts.healthconnect.billing.entity.ClaimStatus;
 import com.cts.healthconnect.billing.entity.InsuranceClaim;
 import com.cts.healthconnect.billing.exception.ClaimNotFoundException;
@@ -20,6 +23,8 @@ import lombok.RequiredArgsConstructor;
 public class InsuranceClaimServiceImpl implements InsuranceClaimService {
 
     private final InsuranceClaimRepository repository;
+    private final NotificationClient       notificationClient;
+    private final PatientClient            patientClient;
 
     @Override
     public InsuranceClaimResponseDto submitClaim(InsuranceClaimRequestDto dto) {
@@ -35,6 +40,19 @@ public class InsuranceClaimServiceImpl implements InsuranceClaimService {
                 .build();
 
         repository.save(claim);
+        
+        // notify
+        String patientEmail = null;
+        try {
+            patientEmail = patientClient.getPatientById(dto.getPatientId()).getEmail();
+        } catch (Exception e) {
+            System.err.println(">>> Could not fetch patient email: " + e.getMessage());
+        }
+
+        notify(dto.getPatientId(), patientEmail,
+               "Your insurance claim has been submitted successfully. Claim number: "
+               + claim.getClaimNumber() + ".");
+        
         return map(claim);
     }
 
@@ -55,6 +73,18 @@ public class InsuranceClaimServiceImpl implements InsuranceClaimService {
 
         claim.setApprovedAmount(approvedAmount);
         claim.setStatus(ClaimStatus.APPROVED);
+        
+        // notify
+        String patientEmail = null;
+        try {
+            patientEmail = patientClient.getPatientById(claim.getPatientId()).getEmail();
+        } catch (Exception e) {
+            System.err.println(">>> Could not fetch patient email: " + e.getMessage());
+        }
+
+        notify(claim.getPatientId(), patientEmail,
+               "Your insurance claim " + claimNumber
+               + " has been approved. Approved amount: ₹" + approvedAmount + ".");
     }
 
     @Override
@@ -64,6 +94,18 @@ public class InsuranceClaimServiceImpl implements InsuranceClaimService {
                 .orElseThrow(() -> new ClaimNotFoundException(claimNumber));
 
         claim.setStatus(ClaimStatus.REJECTED);
+        
+        // notify
+        String patientEmail = null;
+        try {
+            patientEmail = patientClient.getPatientById(claim.getPatientId()).getEmail();
+        } catch (Exception e) {
+            System.err.println(">>> Could not fetch patient email: " + e.getMessage());
+        }
+
+        notify(claim.getPatientId(), patientEmail,
+               "Your insurance claim " + claimNumber
+               + " has been rejected. Please contact support for more details.");
     }
 
     @Override
@@ -73,6 +115,38 @@ public class InsuranceClaimServiceImpl implements InsuranceClaimService {
                 .orElseThrow(() -> new ClaimNotFoundException(claimNumber));
 
         claim.setStatus(ClaimStatus.SETTLED);
+        
+        // notify
+        String patientEmail = null;
+        try {
+            patientEmail = patientClient.getPatientById(claim.getPatientId()).getEmail();
+        } catch (Exception e) {
+            System.err.println(">>> Could not fetch patient email: " + e.getMessage());
+        }
+
+        notify(claim.getPatientId(), patientEmail,
+               "Your insurance claim " + claimNumber
+               + " has been settled. Amount: ₹" + claim.getApprovedAmount() + ".");
+        
+        
+    }
+    
+    
+    // notify helper
+    private void notify(Long patientId, String email, String message) {
+        try {
+            notificationClient.sendNotification(
+                NotificationRequestDto.builder()
+                    .recipientId(patientId)
+                    .recipientType("PATIENT")
+                    .notificationType("BILLING")
+                    .message(message)
+                    .recipientEmail(email)
+                    .build()
+            );
+        } catch (Exception e) {
+            System.err.println(">>> NOTIFICATION FAILED [BILLING]: " + e.getMessage());
+        }
     }
 
     private InsuranceClaimResponseDto map(InsuranceClaim claim) {

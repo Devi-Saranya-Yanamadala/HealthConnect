@@ -44,6 +44,11 @@ public class BillingServiceImpl implements BillingService {
                 .build();
 
         Invoice saved = repository.save(invoice);
+        
+        System.out.println(">>> INVOICE SAVED: " + saved.getInvoiceNumber() + " | patientId: " + patientId);
+
+        
+        // save response
         return mapToResponse(saved);
     }
 
@@ -68,7 +73,7 @@ public class BillingServiceImpl implements BillingService {
 
         invoice.setStatus(dto.getStatus());
         repository.save(invoice);
-
+        
         return mapToResponse(invoice);
     }
 

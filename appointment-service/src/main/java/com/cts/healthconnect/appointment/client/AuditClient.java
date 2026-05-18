@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Map;
 
-@FeignClient(name = "audit-compliance")
+@FeignClient(name = "audit-compliance", url = "http://localhost:5010")
 public interface AuditClient {
 
     @PostMapping("/api/audit/logs")

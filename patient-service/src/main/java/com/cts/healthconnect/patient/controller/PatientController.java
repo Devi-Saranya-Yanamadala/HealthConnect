@@ -25,6 +25,11 @@ public class PatientController {
     public PatientResponseDto get(@PathVariable String patientCode) {
         return service.getPatientByCode(patientCode);
     }
+    
+    @GetMapping("/by-id/{id}")
+    public PatientResponseDto getById(@PathVariable("id") Long id) {
+        return service.getPatientById(id);
+    }
 
     @PutMapping("/{patientCode}/deactivate")
     public void deactivate(@PathVariable String patientCode) {

@@ -16,7 +16,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
 
-            // ✅ ADDED: prevents Spring from creating sessions
+            // prevents Spring from creating sessions
             // Without this, Spring Security creates a session on first request
             // and then expects a CSRF token on subsequent POST requests → 403
             .sessionManagement(session ->
@@ -28,6 +28,8 @@ public class SecurityConfig {
                     "/api/auth/register",
                     "/api/auth/login",
                     "/api/auth/refresh",
+                    "/api/auth/forgot-password",
+                    "/api/auth/verify-otp-reset", 
                     "/api/auth/logout",
                     "/swagger-ui.html",
                     "/swagger-ui/**",

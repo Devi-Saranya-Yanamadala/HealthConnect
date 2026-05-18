@@ -33,6 +33,9 @@ public class Appointment {
 
     @Column(name = "appointment_code", nullable = false)
     private String appointmentCode;
+    
+    @Column(name = "patient_code", nullable = false)
+    private String patientCode;
 
     @Column(name = "patient_id", nullable = false)
     private Long patientId;

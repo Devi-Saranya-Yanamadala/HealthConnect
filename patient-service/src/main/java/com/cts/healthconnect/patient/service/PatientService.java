@@ -11,12 +11,15 @@ public interface PatientService {
     PatientResponseDto registerPatient(PatientRequestDto dto);
 
     PatientResponseDto getPatientByCode(String patientCode);
+    
+    PatientResponseDto getPatientById(Long id);
 
     void deactivatePatient(String patientCode);
 
     PatientResponseDto markPatientDeceased(String patientCode);
     
     Long getTotalPatients();
+    
     Long getPatientCountByDate(String date);
 
 	void activatePatient(String patientCode);

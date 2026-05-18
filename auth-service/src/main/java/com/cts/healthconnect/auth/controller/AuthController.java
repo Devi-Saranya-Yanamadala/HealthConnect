@@ -33,7 +33,18 @@ public class AuthController {
 
         return service.refreshAccessToken(dto);
     }
+    
+    // FORGOT PASSWORD
+    @PostMapping("/forgot-password")
+    public void forgotPassword(@RequestBody ForgotPasswordRequestDto dto) {
+        service.forgotPassword(dto);
+    }
 
+    @PostMapping("/verify-otp-reset")          // ← replaces /reset-password
+    public void verifyOtpAndReset(@RequestBody VerifyOtpRequestDto dto) {
+        service.verifyOtpAndReset(dto);
+    }
+    
     //  LOGOUT → invalidate refresh token
     @PostMapping("/logout")
     public void logout(@RequestBody RefreshTokenRequestDto dto) {

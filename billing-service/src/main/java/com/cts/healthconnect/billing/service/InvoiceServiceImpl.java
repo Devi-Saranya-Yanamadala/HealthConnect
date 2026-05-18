@@ -1,7 +1,10 @@
 package com.cts.healthconnect.billing.service;
 
 
+import com.cts.healthconnect.billing.client.AppointmentClient;
 import com.cts.healthconnect.billing.client.AuditClient;
+import com.cts.healthconnect.billing.client.NotificationClient;
+import com.cts.healthconnect.billing.client.PatientClient;
 import com.cts.healthconnect.billing.dto.InvoiceRequestDto;
 import com.cts.healthconnect.billing.dto.InvoiceResponseDto;
 import com.cts.healthconnect.billing.entity.Invoice;
@@ -33,6 +36,9 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private final InvoiceRepository repository;
     private final AuditClient       auditClient;
+    private final NotificationClient notificationClient;
+    private final PatientClient      patientClient; 
+    private final AppointmentClient    appointmentClient;
 
     @Override
     public InvoiceResponseDto generateInvoice(InvoiceRequestDto dto) {
@@ -50,10 +56,25 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         repository.save(invoice);
 
-        // ✅ AUDIT LOG
+        // AUDIT LOG
         audit("GENERATE_INVOICE", invoice.getInvoiceNumber(),
               "Patient: " + dto.getPatientId()
               + " | Amount: Rs." + dto.getTotalAmount());
+        
+        // fetch patientId from appointmentCode, then email from patient-service
+        String patientEmail = null;
+        Long   patientId    = null;
+        try {
+            AppointmentResponseDto appt = appointmentClient.getByCode(dto.getAppointmentCode());
+            patientId = appt.getPatientId();
+            patientEmail = patientClient.getPatientById(patientId).getEmail();
+        } catch (Exception e) {
+            System.err.println(">>> Could not fetch patient email: " + e.getMessage());
+        }
+
+        notify(patientId, patientEmail,
+               "Your invoice " + invoice.getInvoiceNumber()
+               + " has been generated. Total amount: Rs." + dto.getTotalAmount() + ".");
 
         
 
@@ -90,13 +111,23 @@ public class InvoiceServiceImpl implements InvoiceService {
 
         invoice.setStatus(InvoiceStatus.PAID);
 
-
-        // ✅ AUDIT LOG
-        audit("PAY_INVOICE", invoiceNumber,
-              "Invoice marked as paid | Amount: Rs." + invoice.getTotalAmount());
-
         invoice.setPaidAmount(invoice.getTotalAmount());
         repository.save(invoice);
+        
+        // AUDIT LOG
+        audit("PAY_INVOICE", invoiceNumber,
+              "Invoice marked as paid | Amount: Rs." + invoice.getTotalAmount());
+        
+        // fetch email and notify
+        String patientEmail = null;
+        try {
+            patientEmail = patientClient.getPatientById(invoice.getPatientId()).getEmail();
+        } catch (Exception e) {
+            System.err.println(">>> Could not fetch patient email: " + e.getMessage());
+        }
+        notify(invoice.getPatientId(), patientEmail,
+               "Payment received for invoice " + invoiceNumber
+               + ". Amount paid: Rs." + invoice.getTotalAmount() + ". Thank you!");
 
     }
 
@@ -126,6 +157,25 @@ public class InvoiceServiceImpl implements InvoiceService {
             ));
         } catch (Exception e) {
             System.err.println(">>> AUDIT FAILED [BILLING]: " + e.getMessage());
+        }
+    }
+    
+    
+    // ← add this helper
+    private void notify(Long patientId, String email, String message) {
+        try {
+            notificationClient.sendNotification(
+                NotificationRequestDto.builder()
+                    .recipientId(patientId)
+                    .recipientType("PATIENT")
+                    .notificationType("BILLING")
+                    .message(message)
+                    .recipientEmail(email)
+                    .build()
+            );
+            System.out.println(">>> NOTIFICATION SENT SUCCESSFULLY [BILLING]");
+        } catch (Exception e) {
+            System.err.println(">>> NOTIFICATION FAILED [BILLING]: " + e.getMessage());
         }
     }
 

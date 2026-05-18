@@ -14,4 +14,6 @@ public interface DoctorService {
     List<DoctorResponseDto> getActiveDoctors();
 
     void deactivateDoctor(String doctorCode);
+    
+    void activateDoctor(String code);
 }

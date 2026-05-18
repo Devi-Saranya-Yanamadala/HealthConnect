@@ -16,6 +16,8 @@ public class SecurityConfig {
 	            .requestMatchers("/swagger-ui.html", "/swagger-ui/**","/v3/api-docs/**").permitAll()
 	            .requestMatchers("/api/invoices/**")
 	            .hasAnyRole("BILLING","ADMIN","COMPLIANCE_OFFICER")
+	            .requestMatchers("/api/claims/**") 
+	            .hasAnyRole("BILLING", "ADMIN", "COMPLIANCE_OFFICER")  
 	            .anyRequest().authenticated()
 	        )
 	        .addFilterBefore(new JwtAuthenticationFilter(),

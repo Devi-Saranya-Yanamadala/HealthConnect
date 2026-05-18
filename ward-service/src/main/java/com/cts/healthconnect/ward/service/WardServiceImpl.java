@@ -1,6 +1,8 @@
 package com.cts.healthconnect.ward.service;
 
 import com.cts.healthconnect.ward.client.AuditClient;
+import com.cts.healthconnect.ward.client.NotificationClient;
+import com.cts.healthconnect.ward.client.PatientClient;
 import com.cts.healthconnect.ward.dto.*;
 import com.cts.healthconnect.ward.entity.*;
 import com.cts.healthconnect.ward.exception.*;
@@ -22,6 +24,8 @@ public class WardServiceImpl implements WardService {
     private final WardAdmissionRepository admissionRepository;
     private final BedRepository           bedRepository;
     private final AuditClient             auditClient;
+    private final NotificationClient      notificationClient;
+    private final PatientClient           patientClient;   
 
     @Override
     public WardAdmissionResponseDto admitPatient(WardAdmissionRequestDto dto) {
@@ -45,8 +49,21 @@ public class WardServiceImpl implements WardService {
                 .build();
 
         admissionRepository.save(admission);
+        
+        // fetch patient email
+        String patientEmail = null;
+        try {
+            patientEmail = patientClient.getPatient(dto.getPatientCode()).getEmail();
+        } catch (Exception e) {
+            System.err.println(">>> Could not fetch patient email: " + e.getMessage());
+        }
 
-        // ✅ Audit log
+        notify("ADMISSION", dto.getPatientCode(), patientEmail,
+               "You have been admitted to " + dto.getWardType()
+               + " ward, Bed: " + dto.getBedNumber() + ".");
+
+
+        // Audit log
         audit("ADMIT_PATIENT", admission.getAdmissionCode(),
               "Patient: " + dto.getPatientCode()
               + " | Ward: " + dto.getWardType()
@@ -74,8 +91,19 @@ public class WardServiceImpl implements WardService {
         Bed bed = bedRepository.findByBedNumber(admission.getBedNumber())
                 .orElseThrow();
         bed.setOccupied(false);
+        
+        // fetch patient email
+        String patientEmail = null;
+        try {
+            patientEmail = patientClient.getPatient(admission.getPatientCode()).getEmail();
+        } catch (Exception e) {
+            System.err.println(">>> Could not fetch patient email: " + e.getMessage());
+        }
 
-        // ✅ Audit log
+        notify("ADMISSION", admission.getPatientCode(), patientEmail,
+               "You have been discharged from HealthConnect Hospital. We wish you a speedy recovery.");
+
+        // Audit log
         audit("DISCHARGE_PATIENT", admissionCode,
               "Patient: " + admission.getPatientCode() + " discharged");
     }
@@ -89,8 +117,23 @@ public class WardServiceImpl implements WardService {
     public Long getActiveAdmissions() {
         return admissionRepository.countByStatus(AdmissionStatus.ADMITTED);
     }
+    
+    private void notify(String type, String patientCode, String email, String message) {
+        try {
+            notificationClient.sendNotification(
+                NotificationRequestDto.builder()
+                    .recipientType("PATIENT")
+                    .notificationType(type)
+                    .message(message)
+                    .recipientEmail(email)
+                    .build()
+            );
+        } catch (Exception e) {
+            System.err.println(">>> NOTIFICATION FAILED [WARD]: " + e.getMessage());
+        }
+    }
 
-    // ✅ ADDED: count admissions on a specific date
+    // ADDED: count admissions on a specific date
     @Override
     public Long getAdmissionCountByDate(String date) {
         LocalDate localDate = LocalDate.parse(date);
@@ -99,7 +142,7 @@ public class WardServiceImpl implements WardService {
         return admissionRepository.countByAdmittedAtBetween(start, end);
     }
 
-    // ✅ ADDED: count active admissions on a specific date
+    // ADDED: count active admissions on a specific date
     @Override
     public Long getActiveAdmissionCountByDate(String date) {
         LocalDate localDate = LocalDate.parse(date);
@@ -110,7 +153,7 @@ public class WardServiceImpl implements WardService {
         );
     }
 
-    // ✅ Audit helper — never throws, silent on failure
+    // Audit helper — never throws, silent on failure
     private void audit(String action, String resourceId, String details) {
         try {
             auditClient.log(Map.of(

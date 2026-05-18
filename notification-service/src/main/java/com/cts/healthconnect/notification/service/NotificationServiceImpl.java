@@ -43,6 +43,15 @@ public class NotificationServiceImpl implements NotificationService {
 
         return mapToResponse(saved);
     }
+    
+    @Override
+    public List<NotificationResponseDto> getNotificationsByType(String recipientType) {
+        return repository.findByRecipientTypeOrderByCreatedAtDesc(recipientType)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+    
     private void dispatchToMediums(NotificationRequestDto dto, String message) {
 
         String type = dto.getNotificationType().toUpperCase();
@@ -182,6 +191,9 @@ public class NotificationServiceImpl implements NotificationService {
         return NotificationResponseDto.builder()
                 .id(n.getId())
                 .message(n.getMessage())
+                .notificationType(n.getNotificationType())
+                .recipientType(n.getRecipientType())         
+                .read(n.getStatus() == NotificationStatus.READ)
                 .status(n.getStatus().name())
                 .createdAt(n.getCreatedAt())
                 .build();
@@ -200,5 +212,6 @@ public class NotificationServiceImpl implements NotificationService {
         Notification n = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
         n.setStatus(NotificationStatus.READ);
+        repository.save(n);
     }
 }

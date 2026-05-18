@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 public class NotificationResponseDto {
     private Long id;
     private String message;
+    private String notificationType;
+    private String recipientType;     
+    private boolean read;
     private String status;
     private LocalDateTime createdAt;
 }

@@ -30,9 +30,9 @@ public class NotificationController {
         service.markAsRead(id);
     }
     
-    @GetMapping("/by-type")
+    /*@GetMapping("/by-type")
     public List<NotificationResponseDto> getByRecipientType(
             @RequestParam String recipientType) {
         return service.getNotificationsByType(recipientType);
-    }
+    }*/
 }

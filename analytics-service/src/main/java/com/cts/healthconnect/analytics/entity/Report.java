@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Report {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String reportId;
     
     private String reportName;

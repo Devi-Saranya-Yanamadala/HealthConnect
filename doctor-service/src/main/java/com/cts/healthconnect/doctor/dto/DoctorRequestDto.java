@@ -15,10 +15,6 @@ import lombok.Data;
 @Data
 public class DoctorRequestDto {
 
-    @NotBlank(message = "Doctor code must not be blank")
-    @Size(min = 3, max = 20, message = "Doctor code must be between 3 and 20 characters")
-    private String doctorCode;
-
     @NotBlank(message = "Full name must not be blank")
     @Size(min = 3, max = 100, message = "Full name must be between 3 and 100 characters")
     private String fullName;

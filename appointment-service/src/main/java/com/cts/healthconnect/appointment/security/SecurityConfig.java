@@ -45,7 +45,7 @@ public class SecurityConfig {
                 // ✅ ADDED: date-wise count for analytics calendar
                 .requestMatchers(HttpMethod.GET, "/api/appointments/count/by-date")
                     .hasAnyRole("ADMIN", "COMPLIANCE_OFFICER","BILLING","RECEPTION","DOCTOR")
-
+                    
                 .anyRequest().authenticated()
             )
             .addFilterBefore(

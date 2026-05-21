@@ -36,6 +36,7 @@ public class ReportServiceImpl implements ReportService {
     public ReportResponseDto generateReport(ReportRequestDto request) {
 
         Report report = new Report();
+        report.setReportId(generateReportId());   // ← ADD THIS LINE
         report.setReportName(request.getReportName());
         report.setReportType(request.getReportType());
         report.setCreatedAt(LocalDateTime.now());
@@ -43,7 +44,6 @@ public class ReportServiceImpl implements ReportService {
             SecurityContextHolder.getContext().getAuthentication().getName()
         );
 
-        // ✅ Fetch ONLY the data relevant to the selected report type
         String dataJson = buildDataJson(request.getReportType());
         report.setStatus("COMPLETED");
 
@@ -53,6 +53,16 @@ public class ReportServiceImpl implements ReportService {
         report.setContent(content);
 
         return mapToDto(reportRepository.save(report));
+    }
+
+    private String generateReportId() {
+        return reportRepository.findLastReportId()
+            .map(last -> {
+                // last is like "RPT-0042", extract number after "RPT-"
+                int num = Integer.parseInt(last.substring(4));
+                return String.format("RPT-%04d", num + 1);
+            })
+            .orElse("RPT-0001");
     }
 
     /* ─── BUILD JSON BASED ON REPORT TYPE ─── */

@@ -16,4 +16,6 @@ public interface DoctorService {
     void deactivateDoctor(String doctorCode);
     
     void activateDoctor(String code);
+    
+    DoctorResponseDto getDoctorByEmail(String email);
 }

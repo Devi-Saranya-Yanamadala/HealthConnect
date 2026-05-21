@@ -31,11 +31,11 @@ public class AppointmentController {
                 service.cancelAppointmentById(appointmentId)
         );
     }
-    /*@PatchMapping("/code/{appointmentCode}/cancel")
+    @PatchMapping("/code/{appointmentCode}/cancel")
     public ResponseEntity<AppointmentResponseDto> cancelByCode(
             @PathVariable String appointmentCode) {
         return ResponseEntity.ok(service.cancelAppointmentByCode(appointmentCode));
-    }*/
+    }
 
     // Reschedule appointment
     @PutMapping("/reschedule")
@@ -53,11 +53,11 @@ public class AppointmentController {
                 service.completeAppointmentById(appointmentId)
         );
     }
-    /*@PatchMapping("/code/{appointmentCode}/complete")
+    @PatchMapping("/code/{appointmentCode}/complete")
     public ResponseEntity<AppointmentResponseDto> completeByCode(
             @PathVariable String appointmentCode) {
         return ResponseEntity.ok(service.completeAppointmentByCode(appointmentCode));
-    }*/
+    }
 
     // Get total appointment count
     @GetMapping("/count")
@@ -82,4 +82,12 @@ public class AppointmentController {
             @PathVariable String patientCode) {
         return service.getAppointmentsByPatientCode(patientCode);
     }
+    
+    @GetMapping("/doctor/{doctorCode}")
+    public List<AppointmentResponseDto> getByDoctorCode(
+            @PathVariable String doctorCode) {
+        return service.getAppointmentsByDoctorCode(doctorCode);
+    }
+    
+ 
 }

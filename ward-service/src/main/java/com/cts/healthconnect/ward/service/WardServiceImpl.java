@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +39,7 @@ public class WardServiceImpl implements WardService {
         bed.setOccupied(true);
 
         WardAdmission admission = WardAdmission.builder()
-                .admissionCode(UUID.randomUUID().toString())
+        		.admissionCode(generateAdmissionCode())
                 .patientCode(dto.getPatientCode())
                 .doctorCode(dto.getDoctorCode())
                 .wardType(dto.getWardType())
@@ -71,7 +70,17 @@ public class WardServiceImpl implements WardService {
 
         return map(admission);
     }
-
+    
+    private String generateAdmissionCode() {
+        return admissionRepository.findLastAdmissionCode()
+            .map(last -> {
+                // last is like "ADM-007", extract number after "ADM-"
+                int num = Integer.parseInt(last.substring(4));
+                return String.format("ADM-%03d", num + 1);
+            })
+            .orElse("ADM-001");
+    }
+    
     @Override
     public WardAdmissionResponseDto getAdmission(String admissionCode) {
         WardAdmission admission = admissionRepository.findByAdmissionCode(admissionCode)

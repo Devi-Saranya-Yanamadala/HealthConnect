@@ -8,22 +8,36 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-	@Bean
-	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-	    http.csrf(csrf -> csrf.disable())
-	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers("/swagger-ui.html", "/swagger-ui/**","/v3/api-docs/**").permitAll()
-	            .requestMatchers("/api/doctors/**")
-	            .hasRole("ADMIN")
+        http.csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
 
+                // 1. Swagger — always public
+                .requestMatchers(
+                    "/swagger-ui.html",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**"
+                ).permitAll()
 
+                // 2. Prescription endpoints — DOCTOR + ADMIN
+                //    MUST be declared BEFORE the general /api/doctors/** rule
+                .requestMatchers("/api/doctors/prescriptions/**")
+                    .permitAll()
 
-	            .anyRequest().authenticated()
-	        )
-	        .addFilterBefore(new JwtAuthenticationFilter(),
-	            UsernamePasswordAuthenticationFilter.class);
+                // 3. Doctor CRUD (create, activate, deactivate) — ADMIN only
+                .requestMatchers("/api/doctors/**")
+                    .hasRole("ADMIN")
 
-	    return http.build();
-	}
+                // 4. Everything else needs authentication
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(
+                new JwtAuthenticationFilter(),
+                UsernamePasswordAuthenticationFilter.class
+            );
+
+        return http.build();
+    }
 }

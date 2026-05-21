@@ -44,14 +44,6 @@ public class NotificationServiceImpl implements NotificationService {
         return mapToResponse(saved);
     }
     
-    @Override
-    public List<NotificationResponseDto> getNotificationsByType(String recipientType) {
-        return repository.findByRecipientTypeOrderByCreatedAtDesc(recipientType)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
-    }
-    
     private void dispatchToMediums(NotificationRequestDto dto, String message) {
 
         String type = dto.getNotificationType().toUpperCase();

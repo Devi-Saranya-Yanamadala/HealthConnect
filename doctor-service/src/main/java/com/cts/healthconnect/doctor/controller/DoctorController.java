@@ -49,4 +49,9 @@ public class DoctorController {
     public void activateDoctor(@PathVariable String code) {
         service.activateDoctor(code);
     }
+    
+    @GetMapping("/by-email/{email}")
+    public DoctorResponseDto getByEmail(@PathVariable String email) {
+        return service.getDoctorByEmail(email);
+    }
 }

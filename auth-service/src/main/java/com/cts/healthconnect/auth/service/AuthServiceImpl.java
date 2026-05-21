@@ -94,7 +94,8 @@ public class AuthServiceImpl implements AuthService {
                 user.getUsername(),
                 user.getRole().name(),
                 accessToken,
-                refreshToken
+                refreshToken,
+                user.getEmail()
         );
     }
 
@@ -123,7 +124,8 @@ public class AuthServiceImpl implements AuthService {
                 user.getUsername(),
                 user.getRole().name(),
                 newAccessToken,
-                dto.getRefreshToken()
+                dto.getRefreshToken(),
+                user.getEmail()
         );
     }
     

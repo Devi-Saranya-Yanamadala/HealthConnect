@@ -21,8 +21,10 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public DoctorResponseDto createDoctor(DoctorRequestDto dto) {
+        String generatedCode = generateDoctorCode(); // ← auto-generate here
+
         Doctor doctor = Doctor.builder()
-                .doctorCode(dto.getDoctorCode())
+                .doctorCode(generatedCode)           // ← use generated code
                 .fullName(dto.getFullName())
                 .specialization(dto.getSpecialization())
                 .department(dto.getDepartment())
@@ -36,14 +38,22 @@ public class DoctorServiceImpl implements DoctorService {
 
         repository.save(doctor);
 
-        // AUDIT LOG
         audit("CREATE_DOCTOR", doctor.getDoctorCode(),
               "Doctor created: " + dto.getFullName()
               + " | Dept: " + dto.getDepartment());
 
         return mapToResponse(doctor);
     }
-
+    
+    private String generateDoctorCode() {
+        return repository.findLastDoctorCode()
+            .map(last -> {
+                // last is like "DOC007", extract the number
+                int num = Integer.parseInt(last.substring(3));
+                return String.format("DOC%03d", num + 1);
+            })
+            .orElse("DOC001"); // first doctor ever
+    }
     @Override
     public DoctorResponseDto getDoctorByCode(String code) {
         Doctor doctor = repository.findByDoctorCode(code)
@@ -81,6 +91,13 @@ public class DoctorServiceImpl implements DoctorService {
         audit("ACTIVATE_DOCTOR", code,
               "Doctor activated: " + doctor.getFullName());
     }
+    
+    @Override
+    public DoctorResponseDto getDoctorByEmail(String email) {
+        Doctor doctor = repository.findByEmail(email)
+                .orElseThrow(() -> new DoctorNotFoundException(email));
+        return mapToResponse(doctor);
+    }
 
     // Audit helper
     private void audit(String action, String resourceId, String details) {
@@ -104,6 +121,7 @@ public class DoctorServiceImpl implements DoctorService {
                 .fullName(doctor.getFullName())
                 .specialization(doctor.getSpecialization())
                 .department(doctor.getDepartment())
+                .email(doctor.getEmail())
                 .active(doctor.getActive())
                 .build();
     }

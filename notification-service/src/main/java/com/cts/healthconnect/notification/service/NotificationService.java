@@ -14,5 +14,5 @@ public interface NotificationService {
 
     void markAsRead(Long notificationId);
     
-    List<NotificationResponseDto> getNotificationsByType(String recipientType);
+    //List<NotificationResponseDto> getNotificationsByType(String recipientType);
 }

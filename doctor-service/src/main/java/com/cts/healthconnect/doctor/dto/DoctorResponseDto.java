@@ -12,5 +12,7 @@ public class DoctorResponseDto {
     private String fullName;
     private String specialization;
     private String department;
+    private String  email;
     private Boolean active;
+    
 }

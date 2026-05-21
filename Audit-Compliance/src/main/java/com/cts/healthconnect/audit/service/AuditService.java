@@ -43,16 +43,24 @@ public class AuditService {
         return complianceRepository.findAll();
     }
 
+    private String generateComplianceReportCode() {
+        return complianceRepository.findLastReportCode()
+            .map(last -> {
+                // last is like "CMP-0005", extract number after "CMP-"
+                int num = Integer.parseInt(last.substring(4));
+                return String.format("CMP-%04d", num + 1);
+            })
+            .orElse("CMP-0001");
+    }
+
     public ComplianceReport generateReport(ComplianceReportRequestDto request) {
         ComplianceReport report = new ComplianceReport();
+        report.setReportCode(generateComplianceReportCode());   // ← ADD THIS LINE
         report.setReportName(request.getReportName());
         report.setGeneratedBy(
-            request.getGeneratedBy() != null
-                ? request.getGeneratedBy()
-                : "admin"
+            request.getGeneratedBy() != null ? request.getGeneratedBy() : "admin"
         );
         report.setStatus("COMPLETED");
-        // generatedAt auto-set by @PrePersist
         return complianceRepository.save(report);
     }
     
